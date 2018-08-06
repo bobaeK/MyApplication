@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+
+    android:columnCount="2">
+    <TextView
+        android:id="@+id/tv_alert"
+        android:text="사용자에게 보여줄 메시지"
+        android:layout_gravity="fill_horizontal"
+        android:layout_columnSpan="2"
+        />
+    <Button
+        android:id="@+id/btn_cancel"
+        android:text="cancel"
+
+        android:onClick="cancelOnClickListener"/>
+    <Button
+        android:id="@+id/btn_ok"
+        android:text="ok"
+
+        android:onClick="okOnClickListener"/>
+</GridLayout>

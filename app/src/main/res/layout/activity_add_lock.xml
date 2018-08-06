@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding = "10dp"
+    android:orientation="vertical"
+    android:id ="@+id/linearlayout">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="먼저 디바이스를 등록해주세요!"/>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:text="디바이스 검색"
+            android:id="@+id/btn_scan"
+            android:onClick="scanDeviceOnClickListener"/>
+    </LinearLayout>
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="자물쇠 이름"/>
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="시리얼 넘버"/>
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="등록 방법"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="든 꾸며 눈이 찾아다녀도, 보는 갑 실로 놀이 풀이 약동하다. 구하지 길지 얼마나 싸인 것은 이것이다. 곧 보내는 피어나기 천고에 대한 영원히 아니한 할지니, 되려니와, 것이다. 그림자는 생의 싹이 아름다우냐? 길을 미묘한 속잎나고, 거선의 심장은 가는 고동을 낙원을 것이다. 미묘한 없으면 설산에서 날카로우나 하는 무엇을 안고, 말이다. 무엇을 밝은 소담스러운 이상 실로 고행을 대한 두손을 우리 것이다. 관현악이며, 무엇을 동산에는 노년에게서 들어 부패뿐이다. 미묘한 그들의 그들은 보는 크고 돋고, 청춘에서만 예가 자신과 것이다. 일월과 그들의 행복스럽고 있는 이상을 구하지 가지에 얼마나 피어나는 피다.
+
+        이상 길지 별과 미묘한 이것이다. 못하다 그림자는 싹이 그들의 이것이다. 같이, 우리의 없는 바이며, 이상의 생의 위하여 있는가? 같이 우리 얼음 같이, 맺어, 인생을 풀이 피고 못할 그리하였는가? 밝은 수 바이며, 같으며, 때에, 창공에 청춘에서만 것이다. 같지 하는 사람은 만천하의 것이 고행을 그것은 설레는 것이다.보라, 약동하다. 끓는 반짝이는 별과 있는 내는 그들에게 찬미를 이것이다. 꽃이 산야에 천하를 돋고, 바로 뼈 실로 하는 황금시대를 이것이다. 이는 주는 행복스럽고 있는가? 사람은 속에 피부가 충분히 가지에 놀이 것이다."/>
+        </LinearLayout>
+    </ScrollView>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp">
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="cancel"/>
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="ok"
+            android:onClick="registerOnClickListener"/>
+    </LinearLayout>
+</LinearLayout>
