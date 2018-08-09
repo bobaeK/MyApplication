@@ -310,14 +310,14 @@ public class BluetoothService {
             Log.i(TAG, "BEGIN connectedThread");
             byte[] buffer = new byte[256];
             int bytes;
-
-            BluetoothService.this.write("3".getBytes(), BluetoothConstants.MODE_REQUEST);
+            handler.obtainMessage(state);
+            BluetoothService.this.write("9".getBytes(), BluetoothConstants.MODE_REQUEST);
             // Keep listening to the InputStream while connected
             while (true) {
 
                 try {
-                    BluetoothService.this.write("3".getBytes(), BluetoothConstants.MODE_REQUEST);
-                    Thread.sleep(1000);
+                    //BluetoothService.this.write("9".getBytes(), BluetoothConstants.MODE_REQUEST);
+                    //Thread.sleep(1000);
                     // InputStream으로부터 값을 받는 읽는 부분(값을 받는다)
 
                     bytes = inputStream.read(buffer);
@@ -326,8 +326,8 @@ public class BluetoothService {
                     Log.e(TAG, "disconnected", e);
                     connectionLost();
                     break;
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                //} catch (InterruptedException e) {
+                    //e.printStackTrace();
                 }
             }
         }

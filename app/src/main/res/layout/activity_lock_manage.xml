@@ -54,7 +54,6 @@
         android:background="@color/background_color"
 
         >
-
         <Button
             android:id="@+id/navBtn1"
             android:text="1"
@@ -64,8 +63,6 @@
             android:layout_gravity="bottom|left"
 
             />
-
-
         <Button
             android:id="@+id/navBtn2"
             android:text="2"
@@ -74,7 +71,6 @@
             android:layout_weight="1"
             android:layout_gravity="bottom|center"
             />
-
 
         <Button
             android:id="@+id/navBtn3"

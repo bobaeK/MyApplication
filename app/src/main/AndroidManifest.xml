@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.example.admin.myapplication">
 
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
@@ -12,11 +14,12 @@
     <!-- 출처: http://sehyo88.tistory.com/entry/Android-Bluetooth-기초-외부-Device와-연결 [나의 성장 일기] -->
     <!-- 출처: http://bcho.tistory.com/search/날씨 [조대협의 블로그] -->
     <application
-        android:allowBackup="true"
+        android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
-        android:supportsRtl="true">
+        android:supportsRtl="true"
+        tools:replace="android:allowBackup">
         <activity
             android:name=".view.MainActivity"
             android:theme="@style/AppTheme" />
@@ -35,11 +38,15 @@
         <activity
             android:name=".view.LockManageActivity"
             android:theme="@style/AppTheme" />
-
-        <activity android:name=".view.DeviceListActivity"
+        <activity
+            android:name=".view.DeviceListActivity"
             android:configChanges="orientation|keyboardHidden"
             android:label="select a device to connect"
-            android:theme="@android:style/Theme.Holo.Dialog"></activity>
+            android:theme="@android:style/Theme.Holo.Dialog" />
+        <activity
+            android:name=".view.GPSActivity"
+            android:theme="@style/AppTheme" />
+        <activity android:name=".view.DriveMapActivity" />
     </application>
 
 </manifest>

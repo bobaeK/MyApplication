@@ -59,7 +59,7 @@ public class MainActivity extends AppCompatActivity
                             Toast.makeText(getApplicationContext(),"블루투스연결성공",Toast.LENGTH_SHORT).show();
                             //int state = ((Lock)lockManager.get(0)).getState();
                             int state = 0;
-                            btService.write("3".getBytes(), BluetoothConstants.MODE_REQUEST);
+                            btService.write("9".getBytes(), BluetoothConstants.MODE_REQUEST);
                             //0 - 잠금 1 - 열림
                             if(state == 0) {
                                 lock.setVisibility(View.VISIBLE);
@@ -95,19 +95,40 @@ public class MainActivity extends AppCompatActivity
 
 
                     String strInput = new String(readBuf, 0, msg.arg1);
-                    Log.d(TAG, "read data!"+strInput+"end!");
+                    Log.d(TAG, "read data!"+strInput);
                     stringBuilder.append(strInput);
 
                     int len = stringBuilder.indexOf("\r\n");
-                    Toast.makeText(getApplicationContext(), "len : " + len, Toast.LENGTH_LONG).show();
+                    //Toast.makeText(getApplicationContext(), "len : " + len, Toast.LENGTH_LONG).show();
 
                     if(len > 0){
                         String print = stringBuilder.substring(0, len);
                         stringBuilder.delete(0, stringBuilder.length());
-                        if('1' != (print.charAt(0))) {
-                            refresh.setVisibility(View.GONE);
-                            unlock.setVisibility(View.GONE);
-                            lock.setVisibility(View.VISIBLE);
+                        char c = print.charAt(0);
+                        switch(c){
+                            case '1':
+                                //열림
+                                refresh.setVisibility(View.GONE);
+                                lock.setVisibility(View.GONE);
+                                unlock.setVisibility(View.VISIBLE);
+
+                                break;
+                            case '2':
+                                //닫힘
+                                refresh.setVisibility(View.GONE);
+                                unlock.setVisibility(View.GONE);
+                                lock.setVisibility(View.VISIBLE);
+                                break;
+                            case '3':
+                                //위험감지(진동)
+                                break;
+                            case '4':
+                                //위험감지(끊어짐)
+                                break;
+                            default:
+                                //베터리 잔량 표시
+                                break;
+
                         }
                         Toast.makeText(getApplicationContext(), "print : " + print.charAt(0), Toast.LENGTH_LONG).show();
                     }
@@ -129,15 +150,12 @@ public class MainActivity extends AppCompatActivity
                     //확인을 눌렀을 때
                     Log.d(TAG, "Bluetooth is enable");
 
-
                     BluetoothDevice device;
                     //lockManager.get(0);//첫번째 자물쇠 디바이스의 맥 어드레스 가져오기
                     if(btService == null)
                         btService = new BluetoothService(this, handler);
                     device = btService.getDeviceInfo("98:D3:63:00:01:44");
                     btService.connect(device);
-                    //btService.write("3".getBytes(), BluetoothConstants.MODE_REQUEST);
-
                 }
                 else
                 {
@@ -146,13 +164,6 @@ public class MainActivity extends AppCompatActivity
                     finish();
                 }
                 break;
-            /*case BluetoothConstants.REQUEST_CONNECT_DEVICE:
-                if(resultCode==Activity.RESULT_OK)
-                {
-                    BluetoothDevice device = btService.getDeviceInfo(data);
-                    btService.connect(device);
-                }
-                break;*/
         }
     }
     @Override
