@@ -22,10 +22,6 @@ android {
 }
 
 dependencies {
-    //implementation 'com.github.bumptech.glide:glide:4.6.1'
-    //annotationProcessor 'com.github.bumptech.glide:compiler:4.6.1'
-
-    compile 'com.github.bumptech.glide:glide:3.8.0'
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     //noinspection GradleCompatible
     implementation 'com.android.support:appcompat-v7:27.0.2'
@@ -43,5 +39,5 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 
-    compile 'com.github.anastr:speedviewlib:1.2.0' //18.08.06
+    implementation 'com.github.anastr:speedviewlib:1.2.0' //18.08.06
 }

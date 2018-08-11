@@ -36,7 +36,7 @@ public class AddLockActivity extends AppCompatActivity {
         public void handleMessage(Message msg)
         {
             super.handleMessage(msg);
-            if(msg.what == BluetoothConstants.REQUEST_ENABLE_BT)
+            if(msg.what == BluetoothConstants.MESSAGE_STATE_CHANGE)
             {
                 if(D) Log.i(TAG,"MESSAGE_STATE_CHANGE"+msg.arg1);
                 switch (msg.arg1)

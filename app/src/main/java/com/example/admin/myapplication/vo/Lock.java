@@ -7,11 +7,10 @@ import android.os.Parcelable;
 public class Lock implements Parcelable{
 
     private int battery;
-    private int state;
-    private GpsInfo gspInfo;
+    private int state;//열림 : 1, 잠김 : 2, 진동 : 3, 끊어짐 : 4
     private String name;
     private String macAddr;
-    private int order;
+    private int order;//자물쇠 순서
 
     public Lock(){
 
@@ -65,13 +64,6 @@ public class Lock implements Parcelable{
     public void setState(int state) {
         this.state = state;
     }
-    public GpsInfo getGspInfo() {
-        return gspInfo;
-    }
-
-    public void setGspInfo(GpsInfo gspInfo) {
-        this.gspInfo = gspInfo;
-    }
 
     public String getName() {
         return name;
@@ -89,12 +81,8 @@ public class Lock implements Parcelable{
         this.macAddr = macAddr;
     }
 
-    public int getOrder() {
-        return order;
-    }
+    public int getOrder() { return order; }
 
-    public void setOrder(int order) {
-        this.order = order;
-    }
+    public void setOrder(int order) { this.order = order; }
 
 }

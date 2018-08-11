@@ -42,7 +42,7 @@
             android:name=".view.DeviceListActivity"
             android:configChanges="orientation|keyboardHidden"
             android:label="select a device to connect"
-            android:theme="@android:style/Theme.Holo.Dialog" />
+            android:theme="@android:style/Theme.Holo.Dialog"/>
         <activity
             android:name=".view.GPSActivity"
             android:theme="@style/AppTheme" />

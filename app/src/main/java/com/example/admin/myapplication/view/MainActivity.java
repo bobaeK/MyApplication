@@ -15,6 +15,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,20 +27,24 @@ import com.example.admin.myapplication.vo.Lock;
 import com.example.admin.myapplication.vo.Weather;
 
 import java.util.ArrayList;
+import java.util.StringTokenizer;
 import java.util.concurrent.ExecutionException;
 
 public class MainActivity extends AppCompatActivity
 {
     private static final String TAG = "Main";
+    private Lock curLock;
+
 
     private ImageView unlock;
     private ImageView lock;
     private Button refresh;
-
-    private BluetoothService btService;
-    private StringBuffer outStringBuffer;
-
+    private ProgressBar connecting;
+    private TextView battery;
     private ArrayList<Parcelable> lockManager;
+    private BluetoothService btService;
+
+    private StringBuffer outStringBuffer;
     private int sendingState;
     private StringBuilder stringBuilder = new StringBuilder("");
     @SuppressLint("HandlerLeak")
@@ -51,39 +56,23 @@ public class MainActivity extends AppCompatActivity
             super.handleMessage(msg);
             switch(msg.what)
             {
-                case BluetoothConstants.REQUEST_ENABLE_BT:
-                    Log.i(TAG,"MESSAGE_STATE_CHANGE"+msg.arg1);
-                    switch (msg.arg1)
-                    {
-                        case BluetoothConstants.STATE_CONNECTED:
-                            Toast.makeText(getApplicationContext(),"블루투스연결성공",Toast.LENGTH_SHORT).show();
-                            //int state = ((Lock)lockManager.get(0)).getState();
-                            int state = 0;
-                            btService.write("9".getBytes(), BluetoothConstants.MODE_REQUEST);
-                            //0 - 잠금 1 - 열림
-                            if(state == 0) {
-                                lock.setVisibility(View.VISIBLE);
-                                unlock.setVisibility(View.GONE);
-                                refresh.setVisibility(View.GONE);
-                            }
-                            break;
-
-                        case BluetoothConstants.STATE_FAIL:
-                            Toast.makeText(getApplicationContext(),"블루투스연결실패",Toast.LENGTH_SHORT).show();
-                            lock.setVisibility(View.GONE);
-                            unlock.setVisibility(View.GONE);
-                            refresh.setVisibility(View.VISIBLE);
-                            break;
+                case BluetoothConstants.MESSAGE_STATE_CHANGE:
+                    if(msg.arg1 == BluetoothConstants.STATE_FAIL) {
+                        unlock.setVisibility(View.GONE);
+                        lock.setVisibility(View.GONE);
+                        connecting.setVisibility(View.GONE);
+                        refresh.setVisibility(View.VISIBLE);
+                        Toast.makeText(MainActivity.this, "연결실패!! 다시시도해주세용ㅠㅅㅠ", Toast.LENGTH_SHORT).show();
+                    }else if(msg.arg1 == BluetoothConstants.STATE_CONNECTED) {
+                        connecting.setVisibility(View.GONE);
+                    }else if(msg.arg1 == BluetoothConstants.STATE_LISTEN){
 
                     }
                     break;
-
                 case BluetoothConstants.MESSAGE_WRITE:
                     String writeMessage=null;
                     if(msg.arg1 == 1){
-                        refresh.setVisibility(View.GONE);
-                        lock.setVisibility(View.GONE);
-                        unlock.setVisibility(View.VISIBLE);
+
                     }else if(msg.arg1 == 0){
                         Toast.makeText(getApplicationContext(), "전송실패! 다시시도해주세용ㅠㅅㅠ",Toast.LENGTH_SHORT).show();
                     }
@@ -95,7 +84,7 @@ public class MainActivity extends AppCompatActivity
 
 
                     String strInput = new String(readBuf, 0, msg.arg1);
-                    Log.d(TAG, "read data!"+strInput);
+
                     stringBuilder.append(strInput);
 
                     int len = stringBuilder.indexOf("\r\n");
@@ -111,7 +100,6 @@ public class MainActivity extends AppCompatActivity
                                 refresh.setVisibility(View.GONE);
                                 lock.setVisibility(View.GONE);
                                 unlock.setVisibility(View.VISIBLE);
-
                                 break;
                             case '2':
                                 //닫힘
@@ -127,10 +115,14 @@ public class MainActivity extends AppCompatActivity
                                 break;
                             default:
                                 //베터리 잔량 표시
+                                int index = 0;
+                                while(print.charAt(++index) == '$');
+                                battery.setText("배터리 : " + print.substring(index));
                                 break;
 
                         }
-                        Toast.makeText(getApplicationContext(), "print : " + print.charAt(0), Toast.LENGTH_LONG).show();
+                        Log.d(TAG, "read : " + print);
+                        Toast.makeText(getApplicationContext(), "print : " + print, Toast.LENGTH_LONG).show();
                     }
                     break;
 
@@ -174,11 +166,12 @@ public class MainActivity extends AppCompatActivity
 
         Intent intent = getIntent();
         lockManager = intent.getParcelableArrayListExtra("lock_manager");
-
-        btService = null;
+        curLock = (Lock)lockManager.get(0);
         unlock = (ImageView)findViewById(R.id.unlock);
         lock = (ImageView)findViewById(R.id.lock);
         refresh = (Button)findViewById(R.id.btn_refresh);
+        connecting = (ProgressBar)findViewById(R.id.connecting);
+        battery = (TextView)findViewById(R.id.battery);
 
         outStringBuffer = new StringBuffer("");
 
@@ -224,13 +217,20 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
+        connectBluetooth();
 
+    }
+    private void connectBluetooth(){
+        unlock.setVisibility(View.GONE);
+        lock.setVisibility(View.GONE);
+        refresh.setVisibility(View.GONE);
+        connecting.setVisibility(View.VISIBLE);
         if(btService == null)
         {
             btService = new BluetoothService(this, handler);
         }
         //등록된 디바이스 bluetooth test할때는 != 0으로
-        if(lockManager.size() != 0)
+        if(lockManager.size() == 0)
         {
             /*
              *등록된 자물쇠가 없는경우
@@ -250,7 +250,6 @@ public class MainActivity extends AppCompatActivity
                 //String address = ((Lock)lockManager.get(0)).getMacAddr();//첫번째 자물쇠 디바이스의 맥 어드레스 가져오기
                 device = btService.getDeviceInfo("98:D3:63:00:01:44");
                 btService.connect(device);
-                //btService.write("3".getBytes(), BluetoothConstants.MODE_REQUEST);
 
             } else {
                 Log.d(TAG, "Bluetooth Enable Request");
@@ -260,7 +259,7 @@ public class MainActivity extends AppCompatActivity
         }
     }
     void do_refresh(View v){
-        onResume();
+        connectBluetooth();
     }
     @Override
     protected void onPause() {

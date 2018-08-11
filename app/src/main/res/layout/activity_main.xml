@@ -63,57 +63,73 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:paddingTop="20dp"
-        android:paddingBottom="20dp"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
-        android:layout_weight="1">
+        android:layout_weight="1"
+        android:orientation="horizontal">
         <TextView
             android:text="자물쇠 변경"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:textColor="#00ffffff"/>
-        <ImageView
-            android:id="@+id/lock"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:srcCompat="@drawable/locked"
-            android:layout_weight="1"
-            android:onClick="do_unlock"/>
-
-        <ImageView
-            android:id="@+id/unlock"
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:visibility="gone"
-            android:layout_weight="1"
-            app:srcCompat="@drawable/unlocked"
-            android:onClick="do_lock"/>
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="새로고침"
-            android:visibility="gone"
-            android:layout_weight="1"
-            android:id="@+id/btn_refresh"
-            android:onClick="do_refresh"/>
+            android:gravity = "center"
+            android:layout_weight="1">
+            <ImageView
+                android:id="@+id/lock"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone"
+                app:srcCompat="@drawable/locked"
+                android:onClick="do_unlock"/>
+
+            <ImageView
+                android:id="@+id/unlock"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone"
+                app:srcCompat="@drawable/unlocked"
+                android:onClick="do_lock"/>
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="새로고침"
+                android:id="@+id/btn_refresh"
+                android:onClick="do_refresh"
+                android:visibility="gone"
+                android:layout_gravity="center"/>
+            <ProgressBar
+                android:id="@+id/connecting"
+                style="?android:attr/progressBarStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"/>
+        </FrameLayout>
         <TextView
             android:text="자물쇠 변경"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="#00aaff"
-
             android:onClick="go_management"/>
     </LinearLayout>
-
+    <TextView
+        android:id="@+id/battery"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:gravity="center"
+        android:text="배터리"/>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="70dp"
         android:orientation="horizontal"
         android:background="@color/background_color"
-
         >
 
         <Button

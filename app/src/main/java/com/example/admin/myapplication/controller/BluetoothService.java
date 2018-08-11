@@ -1,5 +1,6 @@
 package com.example.admin.myapplication.controller;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 
@@ -19,10 +20,13 @@ import java.io.OutputStream;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.example.admin.myapplication.BluetoothConstants;
+
 
 public class BluetoothService {
     //변수 설정
@@ -48,6 +52,13 @@ public class BluetoothService {
         //bluetoothAdapter 얻기
         btAdapter = BluetoothAdapter.getDefaultAdapter();
     }
+
+    protected BluetoothService(Parcel in) {
+        mode = in.readInt();
+        state = in.readInt();
+        pairedDevicesArrayList = in.createStringArrayList();
+    }
+
     /* (1) getDeviceState() : 가장먼저 기기의 블루투스 지원여부를 확인한다.*/
     public boolean getDeviceState() {
         Log.d(TAG, "Check the Bluetooth support");
@@ -214,7 +225,6 @@ public class BluetoothService {
         handler.obtainMessage(BluetoothConstants.MESSAGE_STATE_CHANGE, state, -1).sendToTarget();
     }
 
-
     private class ConnectThread extends Thread
     {
         private final BluetoothSocket bluetoothSocket;
@@ -257,7 +267,6 @@ public class BluetoothService {
             {
                 connectionFailed(); //연결 실패 시 불러오는 메소드
                 Log.d(TAG, "Connect Fail");
-
                 //소켓을 닫는다.
                 try {
                     bluetoothSocket.close();
@@ -310,24 +319,19 @@ public class BluetoothService {
             Log.i(TAG, "BEGIN connectedThread");
             byte[] buffer = new byte[256];
             int bytes;
-            handler.obtainMessage(state);
             BluetoothService.this.write("9".getBytes(), BluetoothConstants.MODE_REQUEST);
+
             // Keep listening to the InputStream while connected
             while (true) {
 
                 try {
-                    //BluetoothService.this.write("9".getBytes(), BluetoothConstants.MODE_REQUEST);
-                    //Thread.sleep(1000);
                     // InputStream으로부터 값을 받는 읽는 부분(값을 받는다)
-
                     bytes = inputStream.read(buffer);
                     handler.obtainMessage(BluetoothConstants.MESSAGE_READ, bytes, -1, buffer).sendToTarget();
                 } catch (IOException e) {
                     Log.e(TAG, "disconnected", e);
                     connectionLost();
                     break;
-                //} catch (InterruptedException e) {
-                    //e.printStackTrace();
                 }
             }
         }
