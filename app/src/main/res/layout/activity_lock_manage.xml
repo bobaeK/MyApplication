@@ -4,49 +4,52 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left"
+        android:layout_marginLeft="10dp"
+        android:text="삭제하기"
+        android:id="@+id/delete_btn"
+        android:onClick="do_delete"/>
+    <Button
+        android:id="@+id/select_btn"
+        android:onClick="do_select"
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:paddingTop="30dp"
-        android:paddingBottom="60dp"
-        android:layout_weight="1">
+        android:text="선택하기"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right"
+        android:layout_marginRight="10dp"/>
+
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:orientation="vertical">
-            <Button
-                android:text="선택하기"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="right"
-                android:layout_marginRight="10dp"/>
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="#ffffdd"
-                android:layout_margin="20dp"
-                android:layout_weight="1">
+            android:background="#ffffdd"
+            android:layout_margin="20dp"
+            android:layout_weight="1">
 
-                <view class="android.support.v4.view.ViewPager"
-                    android:id="@+id/view"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1" />
-            </LinearLayout>
-            <TextView
+            <view class="android.support.v4.view.ViewPager"
+                android:id="@+id/view"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="lock1"/>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="xxxx-xxxx-xxxx"/>
+                android:layout_weight="1" />
         </LinearLayout>
-    </LinearLayout>
+        <TextView
+            android:id="@+id/lock_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="lock1"/>
+        <TextView
+            android:id="@+id/lock_serial_num"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="xxxx-xxxx-xxxx"/>
+
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="70dp"

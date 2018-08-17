@@ -71,7 +71,7 @@ public class LoadingActivity extends AppCompatActivity
                 }
                 catch (FileNotFoundException e)
                 {
-                    Log.d(TAG, "lock-info,txt not found");
+                    Log.d(TAG, "lock-info.txt not found");
                     try
                     {
                         BufferedWriter bw = new BufferedWriter(new FileWriter(getFilesDir() + "lock_info.txt", false));
@@ -95,7 +95,7 @@ public class LoadingActivity extends AppCompatActivity
                     finish();
                 }
                 //등록된 디바이스 test할때는 != 0으로
-                if(lockManager.size() == 0)
+                if(lockManager.size() != 0)
                 {
                     /*
                      *등록된 자물쇠가 없는경우

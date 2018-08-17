@@ -1,6 +1,7 @@
 package com.example.admin.myapplication.view;
 
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -9,6 +10,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -17,9 +20,11 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.admin.myapplication.BluetoothConstants;
 import com.example.admin.myapplication.R;
+import com.example.admin.myapplication.controller.BluetoothService;
 
 import java.util.Set;
 
@@ -51,6 +56,7 @@ public class DeviceListActivity extends Activity {
      */
     private ArrayAdapter<String> newDevicesArrayAdapter;
     private boolean isReset = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -86,12 +92,13 @@ public class DeviceListActivity extends Activity {
         newDevicesListView.setAdapter(newDevicesArrayAdapter);
         newDevicesListView.setOnItemClickListener(deviceClickListener);
 
-        // Register for broadcasts when a device is discovered
-        IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-        this.registerReceiver(receiver, filter);
 
+        IntentFilter filter = new IntentFilter();
+        // Register for broadcasts when a device is discovered
+        filter.addAction(BluetoothDevice.ACTION_FOUND);
         // Register for broadcasts when discovery has finished
-        filter = new IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
+        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
+
         this.registerReceiver(receiver, filter);
 
         // Get the local Bluetooth adapter
@@ -110,6 +117,7 @@ public class DeviceListActivity extends Activity {
             String noDevices = getResources().getText(R.string.none_paired).toString();
             pairedDevicesArrayAdapter.add(noDevices);
         }
+
     }
 
     @Override
@@ -157,8 +165,7 @@ public class DeviceListActivity extends Activity {
     /**
      * The on-click listener for all devices in the ListViews
      */
-    private AdapterView.OnItemClickListener deviceClickListener
-            = new AdapterView.OnItemClickListener() {
+    private AdapterView.OnItemClickListener deviceClickListener = new AdapterView.OnItemClickListener() {
         public void onItemClick(AdapterView<?> av, View v, int arg2, long arg3) {
             // Cancel discovery because it's costly and we're about to connect
             btAdapter.cancelDiscovery();
@@ -166,12 +173,13 @@ public class DeviceListActivity extends Activity {
             // Get the device MAC address, which is the last 17 chars in the View
             String info = ((TextView) v).getText().toString();
             String address = info.substring(info.length() - 17);
+            String name = info.substring(0, info.length() - 18);
 
-            // Create the result Intent and include the MAC address
+
             Intent intent = new Intent();
-            intent.putExtra(EXTRA_DEVICE_ADDRESS, address);
-            Log.d(TAG, "finish and mac address : "+address);
-            // Set result and finish this Activity
+            intent.putExtra("device_address", address);
+            intent.putExtra("device_name", name);
+
             setResult(Activity.RESULT_OK, intent);
             finish();
         }
@@ -199,12 +207,13 @@ public class DeviceListActivity extends Activity {
                 if(!isReset) {
                     setProgressBarIndeterminateVisibility(false);
                     setTitle(R.string.select_device);
-                    isReset = false;
+
                     if (newDevicesArrayAdapter.getCount() == 0 && !isReset) {
                         String noDevices = getResources().getText(R.string.none_found).toString();
                         newDevicesArrayAdapter.add(noDevices);
                     }
                 }
+                isReset = false;
             }
         }
     };

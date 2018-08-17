@@ -32,9 +32,9 @@ import java.util.concurrent.ExecutionException;
 
 public class MainActivity extends AppCompatActivity
 {
-    private static final String TAG = "Main";
+    private static final String TAG = "MainActivity";
     private Lock curLock;
-
+    private static final String TESTMACADDR = "98:D3:63:00:01:44";
 
     private ImageView unlock;
     private ImageView lock;
@@ -66,7 +66,11 @@ public class MainActivity extends AppCompatActivity
                     }else if(msg.arg1 == BluetoothConstants.STATE_CONNECTED) {
                         connecting.setVisibility(View.GONE);
                     }else if(msg.arg1 == BluetoothConstants.STATE_LISTEN){
-
+                        unlock.setVisibility(View.GONE);
+                        lock.setVisibility(View.GONE);
+                        connecting.setVisibility(View.GONE);
+                        refresh.setVisibility(View.VISIBLE);
+                        Toast.makeText(MainActivity.this, "연결이 끊어졌어요!! 다시연결해주세용ㅠㅅㅠ", Toast.LENGTH_SHORT).show();
                     }
                     break;
                 case BluetoothConstants.MESSAGE_WRITE:
@@ -146,7 +150,7 @@ public class MainActivity extends AppCompatActivity
                     //lockManager.get(0);//첫번째 자물쇠 디바이스의 맥 어드레스 가져오기
                     if(btService == null)
                         btService = new BluetoothService(this, handler);
-                    device = btService.getDeviceInfo("98:D3:63:00:01:44");
+                    device = btService.getDeviceInfo(TESTMACADDR);
                     btService.connect(device);
                 }
                 else
@@ -166,7 +170,7 @@ public class MainActivity extends AppCompatActivity
 
         Intent intent = getIntent();
         lockManager = intent.getParcelableArrayListExtra("lock_manager");
-        curLock = (Lock)lockManager.get(0);
+
         unlock = (ImageView)findViewById(R.id.unlock);
         lock = (ImageView)findViewById(R.id.lock);
         refresh = (Button)findViewById(R.id.btn_refresh);
@@ -221,6 +225,7 @@ public class MainActivity extends AppCompatActivity
 
     }
     private void connectBluetooth(){
+        Log.i(TAG, "connectBluetooth");
         unlock.setVisibility(View.GONE);
         lock.setVisibility(View.GONE);
         refresh.setVisibility(View.GONE);
@@ -229,7 +234,7 @@ public class MainActivity extends AppCompatActivity
         {
             btService = new BluetoothService(this, handler);
         }
-        //등록된 디바이스 bluetooth test할때는 != 0으로
+
         if(lockManager.size() == 0)
         {
             /*
@@ -242,13 +247,15 @@ public class MainActivity extends AppCompatActivity
             /*
              * 등록된 자물쇠가 존재하는 경우
              */
+            //curLock = (Lock)lockManager.get(0);
+
             if (btService.getBtAdapter().isEnabled()) {
                 // 블루투스 기기의 사용가능여부가 true 일때
                 Log.d(TAG, "Bluetooth Enable Now");
 
                 BluetoothDevice device;
                 //String address = ((Lock)lockManager.get(0)).getMacAddr();//첫번째 자물쇠 디바이스의 맥 어드레스 가져오기
-                device = btService.getDeviceInfo("98:D3:63:00:01:44");
+                device = btService.getDeviceInfo(TESTMACADDR);
                 btService.connect(device);
 
             } else {

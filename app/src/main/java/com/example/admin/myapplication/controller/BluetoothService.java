@@ -1,31 +1,25 @@
 package com.example.admin.myapplication.controller;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothSocket;
+import android.content.Intent;
+import android.os.Build;
+import android.os.Handler;
+import android.util.Log;
 
-import java.io.Serializable;
+import com.example.admin.myapplication.BluetoothConstants;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-
-import android.os.Build;
-import android.os.Handler;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothSocket;
-import android.content.Intent;
-import android.os.Parcel;
-import android.os.Parcelable;
-import android.util.Log;
-import android.widget.Toast;
-
-import com.example.admin.myapplication.BluetoothConstants;
 
 
 public class BluetoothService {
@@ -38,9 +32,9 @@ public class BluetoothService {
     private BluetoothAdapter btAdapter;
     private Activity activity;
     private Handler handler;
-    private ConnectThread connectThread; // 변수명 다시
-    private ConnectedThread connectedThread; // 변수명 다시
-    private int state;// device
+    private ConnectThread connectThread;
+    private ConnectedThread connectedThread;
+    private int state;//device와의 연결 state
     private ArrayList<String> pairedDevicesArrayList = null;
 
 
@@ -53,11 +47,7 @@ public class BluetoothService {
         btAdapter = BluetoothAdapter.getDefaultAdapter();
     }
 
-    protected BluetoothService(Parcel in) {
-        mode = in.readInt();
-        state = in.readInt();
-        pairedDevicesArrayList = in.createStringArrayList();
-    }
+
 
     /* (1) getDeviceState() : 가장먼저 기기의 블루투스 지원여부를 확인한다.*/
     public boolean getDeviceState() {
@@ -94,19 +84,19 @@ public class BluetoothService {
     }
 
     /* getDeviceInfo() : 기기의 주소를 가져와 정보를 리턴*/
-    public BluetoothDevice getDeviceInfo(Intent data) {
+    /*public BluetoothDevice getDeviceInfo(Intent data) {
         //MAC address를 가져온다.
         //String address = data.getExtras().getString(DeviceListActivity.EXTRA_DEVICE_ADDRESS);
-        String address = "98:D3:63:00:01:44";
+        String address = "98:D3:63:00:02:B7";
         Log.d(TAG, "Get Device Info \n" + "address : " + address);
 
         //BluetoothDevice object를 가져온다
         return btAdapter.getRemoteDevice(address);
-    }
+    }*/
     public BluetoothDevice getDeviceInfo(String address) {
 
         //bobae - test할 맥어드레스
-        address = "98:D3:63:00:01:44";
+        //address = "98:D3:63:00:01:44";
 
         Log.d(TAG, "Get Device Info \n" + "address : " + address);
 
@@ -118,7 +108,7 @@ public class BluetoothService {
 
     /* connect() : ConnectThread 초기화와 시작 device의 모든 연결 제거*/
     public synchronized void connect(BluetoothDevice device) {
-        Log.d(TAG, "connect to: " + device);
+        Log.d(TAG, "connect to : " + device);
 
         // Cancel any thread attempting to make a connection
         if (state == BluetoothConstants.STATE_CONNECTING) {
@@ -363,8 +353,5 @@ public class BluetoothService {
                 Log.e(TAG, "close() of connect socket failed", e);
             }
         }
-
-
     }
-
 }

@@ -11,7 +11,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.admin.myapplication.BluetoothConstants;
@@ -19,16 +21,32 @@ import com.example.admin.myapplication.R;
 import com.example.admin.myapplication.controller.BluetoothService;
 import com.example.admin.myapplication.vo.Lock;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.StringTokenizer;
 
 public class AddLockActivity extends AppCompatActivity {
+    private static final String D_NAME = "DOBELOCK2";
 
-    private static final String TAG = "addDevice";
+    private static final String TAG = "addLockActivity";
     private static final boolean D=true;
     private ArrayList<Lock> lockManager;
     private LinearLayout linearLayout;
     private BluetoothService btService;
 
+
+    private EditText lockName;
+    private EditText serialNum;
+    private TextView test;
+
+
+    private String address = null;
+    private String name = null;
     @SuppressLint("HandlerLeak")
     private final Handler handler = new Handler()
     {
@@ -43,6 +61,21 @@ public class AddLockActivity extends AppCompatActivity {
                 {
                     case BluetoothConstants.STATE_CONNECTED:
                         Toast.makeText(getApplicationContext(),"블루투스연결성공",Toast.LENGTH_SHORT).show();
+
+                        if(D_NAME.equals(name)) {
+                            lockName.setText(name);
+                            serialNum.setText(address);
+                            serialNum.setEnabled(false);
+
+                            test.setText("등록완료!!");
+                        }else{
+                            lockName.setText("");
+                            serialNum.setText("");
+                            serialNum.setEnabled(true);
+
+                            test.setText("디바이스를 등록해주세요!");
+                            Toast.makeText(getApplicationContext(), "잘못된 기기 등록입니다!!", Toast.LENGTH_SHORT).show();
+                        }
                         break;
 
                     case BluetoothConstants.STATE_FAIL:
@@ -56,7 +89,7 @@ public class AddLockActivity extends AppCompatActivity {
     public void onActivityResult(int requestCode, int resultCode, Intent data){
         super.onActivityResult(requestCode, resultCode, data);
 
-        Log.d(TAG, "onActivityResult" + resultCode);
+        Log.d(TAG, "onActivityResult " + requestCode);
         switch(requestCode)
         {
             //블루투스 On을 거부한 경우 처리하기(앱 종료)
@@ -80,13 +113,11 @@ public class AddLockActivity extends AppCompatActivity {
             case BluetoothConstants.REQUEST_CONNECT_DEVICE:
                 if(resultCode==Activity.RESULT_OK)
                 {
-                    String address = data.getStringExtra("device_address");
-                    Lock lock= new Lock();
-                    lock.setMacAddr(address);
-                    lockManager.add(lock);
-                    //BluetoothDevice device = btService.getDeviceInfo(address);
+                    address = data.getStringExtra("device_address");
+                    name = data.getStringExtra("device_name");
+                    btService.connect(btService.getDeviceInfo(address));
 
-                    //btService.connect(device);
+                    Log.i(TAG, address + ", " + name);
                 }
                 break;
         }
@@ -98,16 +129,24 @@ public class AddLockActivity extends AppCompatActivity {
 
         linearLayout = (LinearLayout)findViewById(R.id.linearlayout);
         lockManager = getIntent().getParcelableArrayListExtra("lock_manager");
+
+        lockName = (EditText)findViewById(R.id.lock_name);
+        serialNum = (EditText)findViewById(R.id.serial_num);
+        test = (TextView)findViewById(R.id.test);
+
+
         if(btService == null)
-        {
             btService = new BluetoothService(this, handler);
-        }
+
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+        if(btService != null)
+            btService.stop();
     }
+
 
     @Override
     protected void onResume() {
@@ -131,9 +170,55 @@ public class AddLockActivity extends AppCompatActivity {
         }
     }
     void registerOnClickListener(View view){
+        name = lockName.getText().toString();
+        address = serialNum.getText().toString();
+
+        if(serialNum.isEnabled()){
+            Toast.makeText(getApplicationContext(),"먼저 디바이스와 연결해주세요!!", Toast.LENGTH_SHORT).show();
+            return;
+        }else{
+            Lock lock = new Lock();
+            lock.setMacAddr(address);
+            lock.setName(name);
+            lockManager.add(lock);
+
+            //파일에 저장
+            try
+            {
+                Log.i(TAG, "get lock-info" );
+                BufferedWriter bw = new BufferedWriter(new FileWriter(getFilesDir() + "lock_info.txt"));
+                bw.append(String.valueOf(lock.getOrder()));
+                bw.append(lock.getMacAddr());
+                bw.append(lock.getName());
+                bw.append(String.valueOf(lock.getBattery()));
+                bw.append(String.valueOf(lock.getState()));
+
+                Log.d(TAG, "write lock-info" );
+                bw.close();
+            }
+            catch (FileNotFoundException e)
+            {
+                Log.d(TAG, "lock-info.txt not found");
+                e.printStackTrace();
+            }
+            catch (IOException e)
+            {
+                Log.i(TAG, "something wrong" );
+                e.printStackTrace();
+            }
+        }
         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
         intent.putParcelableArrayListExtra("lock_manager", lockManager);
         startActivity(intent);
+        finish();
+    }
+
+    void cancelOnClickListener(View view){
+        if(lockManager.size() == 0){
+
+        }else{
+
+        }
         finish();
     }
 }

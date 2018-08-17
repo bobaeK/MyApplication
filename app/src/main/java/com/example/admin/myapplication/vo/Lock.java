@@ -13,7 +13,11 @@ public class Lock implements Parcelable{
     private int order;//자물쇠 순서
 
     public Lock(){
-
+        battery = 100;
+        state = 2;
+        name = null;
+        macAddr = null;
+        order = -1;
     }
     protected Lock(Parcel in) {
         battery = in.readInt();
