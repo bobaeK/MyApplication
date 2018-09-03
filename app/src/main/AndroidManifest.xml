@@ -38,15 +38,6 @@
         <activity
             android:name=".view.LockManageActivity"
             android:theme="@style/AppTheme" />
-        <activity
-            android:name=".view.DeviceListActivity"
-            android:configChanges="orientation|keyboardHidden"
-            android:label="select a device to connect"
-            android:theme="@android:style/Theme.Holo.Dialog"/>
-        <activity
-            android:name=".view.GPSActivity"
-            android:theme="@style/AppTheme" />
-        <activity android:name=".view.DriveMapActivity" />
     </application>
 
 </manifest>

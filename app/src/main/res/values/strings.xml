@@ -23,4 +23,14 @@
     <string name="nav_header_title">Android Studio</string>
     <string name="nav_header_subtitle">android.studio@android.com</string>
     <string name="nav_header_desc">Navigation header</string>
+
+    <string name="menu">Menu</string>
+    <string name="action_search">Search</string>
+    <string name="action_cart">Cart</string>
+    <string name="action_hot_deals">Hot deals</string>
+
+    <string name="hello_blank_fragment">Hello blank Fragment</string>
+    <string name="search_fragment">Search Fragment</string>
+    <string name="cart_fragment">Cart Fragment</string>
+    <string name="hot_deals_fragment">Hot Deals Fragment</string>
 </resources>

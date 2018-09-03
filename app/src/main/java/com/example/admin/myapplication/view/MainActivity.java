@@ -8,9 +8,12 @@ import android.content.Intent;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
+import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -58,13 +61,20 @@ public class MainActivity extends AppCompatActivity
             {
                 case BluetoothConstants.MESSAGE_STATE_CHANGE:
                     if(msg.arg1 == BluetoothConstants.STATE_FAIL) {
+
                         unlock.setVisibility(View.GONE);
                         lock.setVisibility(View.GONE);
                         connecting.setVisibility(View.GONE);
                         refresh.setVisibility(View.VISIBLE);
+                        battery.setText("");
                         Toast.makeText(MainActivity.this, "연결실패!! 다시시도해주세용ㅠㅅㅠ", Toast.LENGTH_SHORT).show();
+
+
+
+                        Toast.makeText(MainActivity.this, "자물쇠 열림", Toast.LENGTH_SHORT).show();
                     }else if(msg.arg1 == BluetoothConstants.STATE_CONNECTED) {
                         connecting.setVisibility(View.GONE);
+                        battery.setText("배터리 정보 불러오는중...");
                     }else if(msg.arg1 == BluetoothConstants.STATE_LISTEN){
                         unlock.setVisibility(View.GONE);
                         lock.setVisibility(View.GONE);
@@ -216,7 +226,21 @@ public class MainActivity extends AppCompatActivity
             }
         });
         lockManager = (ArrayList<Parcelable>)intent.getParcelableArrayListExtra("lock_manager");
-
+        BottomNavigationView bottomNavigationView = (BottomNavigationView)findViewById(R.id.bottom_navigation);
+        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.action_home:
+                        return true;
+                    case R.id.action_drive:
+                        return true;
+                    case R.id.action_setting:
+                        return true;
+                }
+                return false;
+            }
+        });
     }
     @Override
     protected void onResume() {

@@ -35,7 +35,6 @@ public class GpsInfo extends Service implements LocationListener {
     private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 10;
     // 최소 GPS 정보 업데이트 시간 밀리세컨이므로 1분
     private static final long MIN_TIME_BW_UPDATES = 1000 * 60 * 1;
-
     protected LocationManager locationManager;
 
     public GpsInfo(Context context) {
@@ -50,7 +49,6 @@ public class GpsInfo extends Service implements LocationListener {
                 ContextCompat.checkSelfPermission( context, android.Manifest.permission.ACCESS_COARSE_LOCATION ) != PackageManager.PERMISSION_GRANTED) {
             return null;
         }
-
         try {
             locationManager = (LocationManager) context.getSystemService(LOCATION_SERVICE);
 
@@ -58,8 +56,6 @@ public class GpsInfo extends Service implements LocationListener {
             isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
             // 현재 네트워크 상태 값 알아오기
             isNetworkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-
-
 
             if (!isGPSEnabled && !isNetworkEnabled) {
                 // GPS 와 네트워크사용이 가능하지 않을때 소스 구현
@@ -70,7 +66,6 @@ public class GpsInfo extends Service implements LocationListener {
                     locationManager.requestLocationUpdates( LocationManager.NETWORK_PROVIDER,
                                                                 MIN_TIME_BW_UPDATES,
                                                                 MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
-
                     if (locationManager != null) {
                         location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
                         if (location != null) {
@@ -80,7 +75,6 @@ public class GpsInfo extends Service implements LocationListener {
                         }
                     }
                 }
-
                 if (isGPSEnabled) {
                     if (location == null) {
                         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
@@ -101,7 +95,6 @@ public class GpsInfo extends Service implements LocationListener {
         }
         return location;
     }
-
     /**
      * GPS 종료
      **/
@@ -110,7 +103,6 @@ public class GpsInfo extends Service implements LocationListener {
             locationManager.removeUpdates(GpsInfo.this);
         }
     }
-
     /**
      * 위도값을 가져옵니다.
      **/
@@ -120,7 +112,6 @@ public class GpsInfo extends Service implements LocationListener {
         }
         return lat;
     }
-
     /**
      * 경도값을 가져옵니다.
      **/
@@ -130,14 +121,12 @@ public class GpsInfo extends Service implements LocationListener {
         }
         return lon;
     }
-
     /**
      * GPS 나 wifi 정보가 켜져있는지 확인합니다.
      **/
     public boolean isGetLocation() {
         return this.isGetLocation;
     }
-
     /**
      * GPS 정보를 가져오지 못했을때
      * 설정값으로 갈지 물어보는 alert 창
@@ -175,15 +164,12 @@ public class GpsInfo extends Service implements LocationListener {
     public void onLocationChanged(Location location) {
         // TODO Auto-generated method stub
     }
-
     public void onStatusChanged(String provider, int status, Bundle extras) {
         // TODO Auto-generated method stub
     }
-
     public void onProviderEnabled(String provider) {
         // TODO Auto-generated method stub
     }
-
     public void onProviderDisabled(String provider) {
         // TODO Auto-generated method stub
     }
