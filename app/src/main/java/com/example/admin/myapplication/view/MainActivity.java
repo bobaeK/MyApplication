@@ -1016,19 +1016,19 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         moveMapByUser = false;
 
-//        18.08.26 주석처리
-//        if (currentMarker != null) currentMarker.remove();
+//      18.08.26 주석처리
+        if (currentMarker != null) currentMarker.remove();
         LatLng currentLatLng = new LatLng(location.getLatitude(), location.getLongitude());
-//        MarkerOptions markerOptions = new MarkerOptions();
-//        markerOptions.position(currentLatLng);
-//        markerOptions.title(markerTitle);
-//        markerOptions.snippet(markerSnippet);
-//        markerOptions.draggable(true);
+        MarkerOptions markerOptions = new MarkerOptions();
+        markerOptions.position(currentLatLng);
+        markerOptions.title(markerTitle);
+        markerOptions.snippet(markerSnippet);
+        markerOptions.draggable(true);
 
         //구글맵의 디폴트 현재 위치는 파란색 동그라미로 표시
         //마커를 원하는 이미지로 변경하여 현재 위치 표시하도록 수정 fix - 2017. 11.27
-        //markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_launcher)); //안드로이드 아이콘 18.08.26
-        // currentMarker = mGoogleMap.addMarker(markerOptions); //18.08.26
+        markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_launcher)); //안드로이드 아이콘 18.08.26
+        currentMarker = googleMap.addMarker(markerOptions); //18.08.26
 
         if ( moveMapByAPI ) {
             Log.d( TAG, "setCurrentLocation :  mGoogleMap moveCamera "
