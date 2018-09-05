@@ -3,22 +3,22 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/action_home"
+        android:id="@+id/btnWindow1"
         android:enabled="true"
         android:icon="@drawable/mainicon"
-        android:title="@string/action_search"
-        app:showAsAction="ifRoom"/>
-
+        android:title="@string/menu1"
+        app:showAsAction="ifRoom"
+        />
     <item
-        android:id="@+id/action_drive"
+        android:id="@+id/btnWindow2"
         android:enabled="true"
-        android:icon="@drawable/mainicon"
-        android:title="@string/action_cart"
-        app:showAsAction="ifRoom"/>
+        android:icon="@drawable/ridingicon"
+        android:title="@string/menu2"
+        app:showAsAction="ifRoom" />
     <item
-        android:id="@+id/action_setting"
+        android:id="@+id/btnWindow3"
         android:enabled="true"
-        android:icon="@drawable/mainicon"
-        android:title="@string/action_hot_deals"
-        app:showAsAction="ifRoom"/>
+        android:title="@string/menu3"
+        android:icon="@drawable/settingicon"
+        app:showAsAction="ifRoom" />
 </menu>

@@ -231,12 +231,12 @@ public class MainActivity extends AppCompatActivity
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
-                    case R.id.action_home:
+                    /*case R.id.action_home:
                         return true;
                     case R.id.action_drive:
                         return true;
                     case R.id.action_setting:
-                        return true;
+                        return true;*/
                 }
                 return false;
             }
