@@ -1,177 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
+<!--리스트뷰 네비게이션-->
+<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/drawerlayout"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:layout_width="match_parent">
 
+    <!--drawer layout을 만들고 그 안에 view를 배치하면 됨-->
+    <ListView android:id="@+id/drawer"
+        android:layout_height="match_parent"
+        android:layout_width="200dp"
+        android:background="@color/baseBg"
+        android:dividerHeight="1dp"
+        android:divider="#ffffff"
+        android:orientation="vertical"
+        android:layout_gravity="start"/>
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-        <!--숭실대학교 (37.496375,126.9546903)-->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="latitude"
-                android:id="@+id/tvLatitude" />
-            <EditText
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/lat"
-                android:width="100dp"
-                android:focusable="false"
-                android:text="37" />
+        android:layout_height="match_parent">
+        <!--Window1-->
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="longitude"
-                android:id="@+id/tvLongitude" />
-
-
-            <EditText
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:focusable="false"
-                android:width="100dp"
-                android:text="127"
-                android:id="@+id/lon" />
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Temperature"
-                android:id="@+id/tem"
-                android:layout_weight="4"/>
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="getWeather"
-                android:id="@+id/getWeatherBtn"
-                android:layout_weight="1"/>
-
-        </LinearLayout>
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingTop="20dp"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
-        android:layout_weight="1"
-        android:orientation="horizontal">
-        <TextView
-            android:text="자물쇠 변경"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:textColor="#00ffffff"/>
-        <FrameLayout
+        <include
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:gravity = "center"
-            android:layout_weight="1">
-            <ImageView
-                android:id="@+id/lock"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:visibility="gone"
-                app:srcCompat="@drawable/locked"
-                android:onClick="do_unlock"/>
+            layout="@layout/layout_main"/>
 
-            <ImageView
-                android:id="@+id/unlock"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:visibility="gone"
-                app:srcCompat="@drawable/unlocked"
-                android:onClick="do_lock"/>
 
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="새로고침"
-                android:id="@+id/btn_refresh"
-                android:onClick="do_refresh"
-                android:visibility="gone"
-                android:layout_gravity="center"/>
-            <ProgressBar
-                android:id="@+id/connecting"
-                style="?android:attr/progressBarStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"/>
-        </FrameLayout>
-        <TextView
-            android:text="자물쇠 변경"
-            android:layout_width="wrap_content"
+        <!--Window2-->
+        <include
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            layout="@layout/layout_gps_drive"/>
+
+        <!--Window3-->
+        <include
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            layout="@layout/layout_setting"/>
+
+
+        <!--하단 네비게이션-->
+        <android.support.design.widget.BottomNavigationView
+            android:id="@+id/bottom_navigation"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="#00aaff"
-            android:onClick="go_management"/>
-    </LinearLayout>
-    <TextView
-        android:id="@+id/battery"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="20dp"
-        android:gravity="center"
-        android:text=""/>
+            android:layout_alignParentBottom="true"
+            app:itemIconTint="@android:color/white"
+            app:itemBackground="@drawable/selector"
+            app:itemTextColor="@android:color/white"
+            app:menu="@menu/bottom_navigation_main">
+        </android.support.design.widget.BottomNavigationView>
+    </RelativeLayout>
 
-<!--    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="70dp"
-        android:orientation="horizontal"
-        android:background="@color/background_color"
-        >
-
-        <Button
-            android:id="@+id/navBtn1"
-            android:text="1"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:layout_gravity="bottom|left"
-
-            />
-
-
-        <Button
-            android:id="@+id/navBtn2"
-            android:text="2"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:layout_gravity="bottom|center"
-            />
-
-
-        <Button
-            android:id="@+id/navBtn3"
-            android:text="3"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:layout_gravity="bottom|right"
-            />
-
-
-    </LinearLayout>-->
-    <android.support.design.widget.BottomNavigationView
-        android:id="@+id/bottom_navigation"
-        android:layout_width="match_parent"
-        android:layout_height="70dp"
-        app:itemBackground="@color/background_color"
-        app:itemTextColor="@android:color/white"
-        app:itemIconTint="@android:color/white"
-
-        app:menu="@menu/bottom_navigation_main"
-        />
-</LinearLayout>
+</android.support.v4.widget.DrawerLayout>

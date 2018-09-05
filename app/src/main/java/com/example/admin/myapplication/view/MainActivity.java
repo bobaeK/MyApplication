@@ -1,23 +1,49 @@
 package com.example.admin.myapplication.view;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.res.Configuration;
+import android.graphics.Color;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Parcelable;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -26,14 +52,43 @@ import com.example.admin.myapplication.BluetoothConstants;
 import com.example.admin.myapplication.controller.BluetoothService;
 import com.example.admin.myapplication.controller.OpenWeatherAPITask;
 import com.example.admin.myapplication.R;
+import com.example.admin.myapplication.vo.Distance;
+import com.example.admin.myapplication.vo.GpsInfo;
 import com.example.admin.myapplication.vo.Lock;
 import com.example.admin.myapplication.vo.Weather;
+import com.github.anastr.speedviewlib.SpeedView;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.StringTokenizer;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+;
 import java.util.concurrent.ExecutionException;
 
-public class MainActivity extends AppCompatActivity
+import noman.googleplaces.NRPlaces;
+import noman.googleplaces.Place;
+import noman.googleplaces.PlaceType;
+import noman.googleplaces.PlacesException;
+import noman.googleplaces.PlacesListener;
+
+public class MainActivity extends AppCompatActivity implements OnMapReadyCallback,
+        GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener,
+        com.google.android.gms.location.LocationListener, PlacesListener
 {
     private static final String TAG = "MainActivity";
     private Lock curLock;
@@ -143,6 +198,81 @@ public class MainActivity extends AppCompatActivity
             }
         }
     };
+
+
+
+    /***********GPS 관련 변수***********/
+    private GoogleApiClient googleApiClient = null;
+    private GoogleMap googleMap = null;
+    private Marker currentMarker = null;
+
+    private static final int GPS_ENABLE_REQUEST_CODE = 2001;
+    private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 2002;
+    private static final int UPDATE_INTERVAL_MS = 1000;  // 1초
+    private static final int FASTEST_UPDATE_INTERVAL_MS = 500; // 0.5초
+
+    //private AppCompatActivity  mActivity;
+    boolean askPermissionOnceAgain = false;
+    boolean requestingLocationUpdates = false;
+    Location currentLocatiion;
+    boolean moveMapByUser = true;
+    boolean moveMapByAPI = true;
+    LatLng currentPosition;
+
+
+    LocationRequest locationRequest = new LocationRequest()
+            .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+            .setInterval(UPDATE_INTERVAL_MS)
+            .setFastestInterval(FASTEST_UPDATE_INTERVAL_MS);
+
+
+    List<Marker> previous_marker = null; //18.07.31
+
+    private final int PERMISSIONS_ACCESS_FINE_LOCATION = 1000;
+    private final int PERMISSIONS_ACCESS_COARSE_LOCATION = 1001;
+
+    private boolean isAccessFineLocation = false;
+    private boolean isAccessCoarseLocation = false;
+    private boolean isPermission = false;
+
+    //2018-08-14 추가내용
+    private Button btn_timer_start, btn_timer_finish;
+    private boolean isReset=true;
+    private boolean isBtnClickStart = false;
+    private int timer = 0;
+    private double bef_lat=0.0,bef_long=0.0;
+    Handler time_handler;
+    private TextView tv_rideDis, tv_rideTime;
+    double sum_dist=0, cur_lat=0, cur_long=0;
+
+    // GPSTracker class
+    private GpsInfo gps;
+
+    /// 이하는 속도를 위한 추가
+    double mySpeed = 0, maxSpeed = 0;
+    private TextView txtCur, txtMax;
+    private LocationManager locationManager;
+    private LocationListener locationListener;
+
+
+    //18.08.16 주행화면, 지도에서 사용되어지는 아이콘, 레이아웃
+    private FrameLayout spdToMap, mapToSpd;
+
+    //18.08.19 주행화면<-> 지도 애니메이션
+    Animation translateLeft = null;
+    Animation translateRight = null;
+
+    //Template 관련
+    BottomNavigationView bottomNavigationView;
+    private FrameLayout window1, window2, window3;
+
+    //18.08.26 리스트뷰 관련
+    ActionBarDrawerToggle drawerToggle;
+    String [] drawer_str={"처음화면","자물쇠관리","주행하기","공지사항","OBELOCK?","설정"};
+
+
+
+
     public void onActivityResult(int requestCode, int resultCode, Intent data){
         super.onActivityResult(requestCode, resultCode, data);
         Log.d(TAG, "onActivityResult" + resultCode);
@@ -170,13 +300,35 @@ public class MainActivity extends AppCompatActivity
                     finish();
                 }
                 break;
+            case GPS_ENABLE_REQUEST_CODE:
+
+                //사용자가 GPS 활성 시켰는지 검사
+                if (checkLocationServicesStatus()) {
+                    if (checkLocationServicesStatus()) {
+
+                        Log.d(TAG, "onActivityResult : 퍼미션 가지고 있음");
+
+
+                        if ( googleApiClient.isConnected() == false ) {
+
+                            Log.d( TAG, "onActivityResult : mGoogleApiClient connect ");
+                            googleApiClient.connect();
+                        }
+                        return;
+                    }
+                }
+                break;
         }
     }
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
+                WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_main);
+
+        Log.d(TAG, "onCreate");
 
         Intent intent = getIntent();
         lockManager = intent.getParcelableArrayListExtra("lock_manager");
@@ -188,6 +340,251 @@ public class MainActivity extends AppCompatActivity
         battery = (TextView)findViewById(R.id.battery);
 
         outStringBuffer = new StringBuffer("");
+
+        //MAP
+        previous_marker = new ArrayList<Marker>();
+
+        googleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
+
+        MapFragment mapFragment = (MapFragment) getFragmentManager()
+                .findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
+
+        //18.08.19 리스트 네비게이션
+        DrawerLayout drawerLayout=(DrawerLayout)findViewById(R.id.drawerlayout);
+        ListView listView=(ListView)findViewById(R.id.drawer);
+
+        ArrayAdapter<String> adapter=new ArrayAdapter<String>(this,R.layout.listitem,drawer_str);
+        listView.setAdapter(adapter);
+
+        drawerToggle=new ActionBarDrawerToggle(this,drawerLayout,R.string.open,R.string.close){
+            @Override
+            public void onDrawerOpened(View drawerView) {
+                super.onDrawerOpened(drawerView);
+            }
+            @Override
+            public void onDrawerClosed(View drawerView) {
+                super.onDrawerClosed(drawerView);
+            }
+        };
+        drawerLayout.setDrawerListener(drawerToggle);
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
+
+        //속도계
+        final SpeedView spdview = findViewById(R.id.speedView); //18.08.06
+
+        //현재속도 최고속도 추가
+        txtCur = (TextView) findViewById(R.id.tv_current);
+        txtMax = (TextView) findViewById(R.id.tv_maximum);
+
+        //2018-08-14
+        tv_rideDis = (TextView)findViewById(R.id.tv_rideDis);
+        tv_rideTime=(TextView)findViewById(R.id.tv_rideTime);
+        btn_timer_start = (Button)findViewById(R.id.btn_timer_start);
+        btn_timer_finish = (Button)findViewById(R.id.btn_timer_finish);
+
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        locationListener = new LocationListener() {
+            @Override
+            public void onLocationChanged(Location location) {
+                gps = new GpsInfo(MainActivity.this);
+                // GPS 사용유무 가져오기
+                if (gps.isGetLocation()) {
+                } else {
+                    // GPS 를 사용할수 없으므로
+                    gps.showSettingsAlert();
+                }
+                if (location != null) {
+                    mySpeed = ((location.getSpeed() * 3600) / 1000);
+                    if (mySpeed > maxSpeed) {
+                        maxSpeed = mySpeed;
+                    }
+                } // 속도 계산
+            }
+            @Override
+            public void onStatusChanged(String provider, int status, Bundle extras) { }
+            @Override
+            public void onProviderEnabled(String provider) { }
+            @Override
+            public void onProviderDisabled(String provider) { }
+        };
+        //18.08.16 스피드미터 <-> 맵 화면전환
+        mapToSpd = (FrameLayout)findViewById(R.id.mapToSpd);
+        spdToMap = (FrameLayout)findViewById(R.id.spdToMap);
+
+        //18.08.19 스피드미터 <-> 맵 화면전환 애니메이션
+        translateLeft = AnimationUtils.loadAnimation(this,R.anim.translate_left);
+        translateRight = AnimationUtils.loadAnimation(this,R.anim.translate_right);
+
+
+        //18.08.26 <<화면전환 애니메이션
+        SlidingAnimaionListener saListener = new SlidingAnimaionListener(); // 아래서 정의한 클래스를 선언
+        translateLeft.setAnimationListener(saListener); // 선언한 클래스를 input 값으로 지정
+        translateRight.setAnimationListener(saListener); // 선언한 클래스를 input 값으로 지정
+
+
+
+        //템플릿의  메뉴 화면전환
+        bottomNavigationView = (BottomNavigationView)findViewById(R.id.bottom_navigation);
+
+        window1 = (FrameLayout) findViewById(R.id.window1);
+        window2 = (FrameLayout) findViewById(R.id.window2);
+        window3 = (FrameLayout) findViewById(R.id.window3);
+
+
+
+        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                switch (item.getItemId()) {
+
+                    case R.id.btnWindow1:
+                        window1.setVisibility(View.VISIBLE);
+                        window2.setVisibility(View.GONE);
+                        window3.setVisibility(View.GONE);
+                        break;
+
+                    case R.id.btnWindow2:
+                        window1.setVisibility(View.GONE);
+                        window2.setVisibility(View.VISIBLE);
+                        window3.setVisibility(View.GONE);
+                        break;
+
+                    case R.id.btnWindow3:
+                        window1.setVisibility(View.GONE);
+                        window2.setVisibility(View.GONE);
+                        window3.setVisibility(View.VISIBLE);
+                        break;
+                }
+                return true;
+            }
+        });
+
+        //18.08.14
+        btn_timer_start.setOnClickListener(new View.OnClickListener() {
+            @SuppressLint("HandlerLeak")
+            @Override
+            public void onClick(View view) {
+
+                if (view.getId() == R.id.btn_timer_start) {
+
+                    if (isBtnClickStart == true) { // 시작 버튼이 눌렸는데 유저가 다시 한번 누른 경우
+                        isBtnClickStart = false;
+                        time_handler.removeMessages(0);
+                        btn_timer_start.setText("주행시작");
+                        btn_timer_start.setBackgroundColor(Color.rgb(52,152,255));
+                        btn_timer_start.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.starticon,0,0,0);//18.08.26
+                        Toast.makeText(getApplicationContext(), "주행을 정지합니다.", Toast.LENGTH_SHORT).show();
+
+                        return;
+                    } //일시정지는
+                    Toast.makeText(getApplicationContext(), "주행을 시작합니다.", Toast.LENGTH_SHORT).show();
+
+                    btn_timer_start.setText("일시정지");
+                    btn_timer_start.setBackgroundColor(Color.rgb(241,196,15));
+                    btn_timer_start.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.pauseicon,0,0,0);//18.08.26
+
+                    // Flag 설정
+                    isReset = false;
+                    isBtnClickStart = true;
+
+                    /* 타이머를 위한 Handler */
+                    time_handler = new Handler() {
+                        @Override
+                        public void handleMessage(Message msg) {
+                            time_handler.sendEmptyMessageDelayed(0, 1000); // 1초 간격으로
+                            timer++; // Timer 증가
+                            /* Text View 갱신*/
+                            tv_rideTime.setText(String.format("%02d",(timer/3600))+" : "  + String.format("%02d",(timer%3600)/60) +" : "+String.format("%02d",(timer%3600)%60));
+                            tv_rideDis.setText(String.format("%.2f",sum_dist) + " Km");
+
+                            //위의 로케이션리스너에서 값을 수시로 바꾸고 있을때 스타트 버튼을 눌렀을 때에만 밑에 표기 하기 위함
+                            //test중
+                            txtCur.setText(String.format("%.2f",mySpeed) + " Km/h");
+                            txtMax.setText(String.format("%.2f",maxSpeed) + " Km/h");
+                            spdview.speedTo((float)mySpeed);
+                            /* 3초 마다 GPS를 찍기 위한 소스*/
+                            if (timer % 3 == 0) {
+                                GpsInfo gps = new GpsInfo(getApplicationContext());
+                                // GPS 사용유무 가져오기
+                                if (gps.isGetLocation()) {
+                                    Log.d("GPS사용", "찍힘 : " + timer);
+                                    double latitude = gps.getLatitude(); // 위도
+                                    double longitude = gps.getLongitude(); // 경도
+
+                                    /* 현재의 GPS 정보 저장*/
+                                    cur_lat = latitude;
+                                    cur_long = longitude;
+
+                                    /* 이전의 GPS 정보와 현재의 GPS 정보로 거리를 구한다.*/
+                                    Distance calcDistance = new Distance(bef_lat,bef_long,cur_lat,cur_long); // 거리계산하는 클래스 호출
+                                    double dist = calcDistance.getDistance();
+                                    dist = (int)(dist * 100) / 100.0;
+                                    sum_dist += dist;
+
+                                    /* 이전의 GPS 정보를 현재의 GPS 정보로 변환한다. */
+                                    bef_lat = cur_lat;
+                                    bef_long = cur_long;
+
+                                }
+                            }
+                        }
+                    };
+                    time_handler.sendEmptyMessage(0);
+                }
+            }
+
+
+
+        });//주행시작
+
+        btn_timer_finish.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(getApplicationContext(), "주행을 종료합니다.", Toast.LENGTH_SHORT).show();
+
+                /* Timer Handler 제거 */
+                time_handler.removeMessages(0);
+
+                /* Checking 변수 */
+                isBtnClickStart = false;
+                isReset = true;
+
+                /*값 초기화*/
+                sum_dist=0;
+                timer = 0;
+
+                tv_rideTime.setText("00 : 00 : 00");
+                tv_rideDis.setText("0.00 Km");
+                txtCur.setText("0.00 Km/h");
+                txtMax.setText("0.00 Km/h");
+
+                btn_timer_start.setText("주행시작");
+                btn_timer_start.setBackgroundColor(Color.rgb(52,152,255));
+                btn_timer_start.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.starticon,0,0,0); //18.08.26
+            }
+        }); // 주행종료
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        //GPS PROVIDER 일때 최소 0초마다 혹은 0미터 변동 되었을때 마다 리스너를 호출 한다.
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+
+        callPermission();  // 권한 요청을 해야 함
 
         //여기서 디비에서 불러온 상태값에 따라 unlock을 visible할지 lock을 visible할지 결정(default는 lock이 visible)
         final TextView tem = (TextView)findViewById(R.id.tem);
@@ -215,38 +612,32 @@ public class MainActivity extends AppCompatActivity
                     tem.setText(temperature);
 
                 }
-                catch (InterruptedException e)
-                {
-                    e.printStackTrace();
-                }
-                catch (ExecutionException e)
+                catch (InterruptedException | ExecutionException e)
                 {
                     e.printStackTrace();
                 }
             }
         });
         lockManager = (ArrayList<Parcelable>)intent.getParcelableArrayListExtra("lock_manager");
-        BottomNavigationView bottomNavigationView = (BottomNavigationView)findViewById(R.id.bottom_navigation);
-        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                switch (item.getItemId()) {
-                    /*case R.id.action_home:
-                        return true;
-                    case R.id.action_drive:
-                        return true;
-                    case R.id.action_setting:
-                        return true;*/
-                }
-                return false;
-            }
-        });
+        
     }
     @Override
     protected void onResume() {
         super.onResume();
         connectBluetooth();
+        if (googleApiClient.isConnected()) {
 
+            Log.d(TAG, "onResume : call startLocationUpdates");
+            if (!requestingLocationUpdates) startLocationUpdates();
+        }
+        //앱 정보에서 퍼미션을 허가했는지를 다시 검사해봐야 한다.
+        if (askPermissionOnceAgain) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                askPermissionOnceAgain = false;
+
+                checkPermissions();
+            }
+        }
     }
     private void connectBluetooth(){
         Log.i(TAG, "connectBluetooth");
@@ -254,11 +645,15 @@ public class MainActivity extends AppCompatActivity
         lock.setVisibility(View.GONE);
         refresh.setVisibility(View.GONE);
         connecting.setVisibility(View.VISIBLE);
+
         if(btService == null)
         {
             btService = new BluetoothService(this, handler);
         }
-
+        if(!btService.getDeviceState()){
+            Toast.makeText(getApplicationContext(), "블루투스지원안함!!", Toast.LENGTH_SHORT).show();
+            return;
+        }
         if(lockManager.size() == 0)
         {
             /*
@@ -365,5 +760,599 @@ public class MainActivity extends AppCompatActivity
         sendingState = BluetoothConstants.STATE_NO_SENDING ;
         notify() ;
     }
-}
+    public void onMapIconClick(View v) {
+        switch (v.getId()){
 
+            case R.id.spdButton:
+
+                spdToMap.startAnimation(translateRight);
+                spdToMap.setVisibility(View.VISIBLE);
+                mapToSpd.setVisibility(View.GONE);
+                break;
+
+            case R.id.mapButton:
+
+                mapToSpd.startAnimation(translateLeft);
+                mapToSpd.setVisibility(View.VISIBLE);
+                spdToMap.setVisibility(View.GONE);
+                break;
+
+            case R.id.mapRestaurant:
+                showRestaurantInformation(currentPosition);
+                break;
+
+            case R.id.mapConvenience:
+                showConvenienceInformation(currentPosition);
+                break;
+
+            case R.id.mapBike:
+                showBikeMarketInformation(currentPosition);
+                break;
+        }
+    }
+    // 권한 요청
+    private void callPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+                && checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    PERMISSIONS_ACCESS_FINE_LOCATION);
+
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+                && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED){
+
+            requestPermissions(
+                    new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
+                    PERMISSIONS_ACCESS_COARSE_LOCATION);
+        } else {
+            isPermission = true;
+        }
+
+    }
+    private void startLocationUpdates() {
+        if (!checkLocationServicesStatus()) {
+            Log.d(TAG, "startLocationUpdates : call showDialogForLocationServiceSetting");
+            showDialogForLocationServiceSetting();
+        }else {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                    && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+                Log.d(TAG, "startLocationUpdates : 퍼미션 안가지고 있음");
+                return;
+            }
+            Log.d(TAG, "startLocationUpdates : call FusedLocationApi.requestLocationUpdates");
+            LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, this);
+            requestingLocationUpdates = true;
+
+            googleMap.setMyLocationEnabled(true);
+
+        }
+
+    }
+    private void stopLocationUpdates() {
+        Log.d(TAG,"stopLocationUpdates : LocationServices.FusedLocationApi.removeLocationUpdates");
+        LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient, this);
+        requestingLocationUpdates = false;
+    }
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        Log.d(TAG, "onMapReady :");
+        this.googleMap = googleMap;
+
+        //런타임 퍼미션 요청 대화상자나 GPS 활성 요청 대화상자 보이기전에
+        //지도의 초기위치를 서울로 이동
+        setDefaultLocation();
+        googleMap.getUiSettings().setZoomControlsEnabled(true);//18.08.26
+        googleMap.getUiSettings().setMyLocationButtonEnabled(true);
+
+        googleMap.animateCamera(CameraUpdateFactory.zoomTo(15));
+        googleMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener(){
+
+            @Override
+            public boolean onMyLocationButtonClick() {
+                Log.d( TAG, "onMyLocationButtonClick : 위치에 따른 카메라 이동 활성화");
+                moveMapByAPI = true;
+                return true;
+            }
+        });
+        googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+
+            @Override
+            public void onMapClick(LatLng latLng) {
+                Log.d( TAG, "onMapClick :");
+            }
+        });
+
+        googleMap.setOnCameraMoveStartedListener(new GoogleMap.OnCameraMoveStartedListener() {
+
+            @Override
+            public void onCameraMoveStarted(int i) {
+
+                if (moveMapByUser == true && requestingLocationUpdates){
+                    Log.d(TAG, "onCameraMove : 위치에 따른 카메라 이동 비활성화");
+                    moveMapByAPI = false;
+                }
+                moveMapByUser = true;
+            }
+        });
+
+
+        googleMap.setOnCameraMoveListener(new GoogleMap.OnCameraMoveListener() {
+
+            @Override
+            public void onCameraMove() {
+            }
+        });
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+
+        currentPosition
+                = new LatLng( location.getLatitude(), location.getLongitude());
+
+
+        Log.d(TAG, "onLocationChanged : ");
+
+        String markerTitle = getCurrentAddress(currentPosition);
+        String markerSnippet = "위도:" + String.valueOf(location.getLatitude())
+                + " 경도:" + String.valueOf(location.getLongitude());
+
+        //현재 위치에 마커 생성하고 이동
+        setCurrentLocation(location, markerTitle, markerSnippet);
+
+        currentLocatiion = location;
+    }
+
+    @Override
+    protected void onStart() {
+        if(googleApiClient != null && googleApiClient.isConnected() == false){
+            Log.d(TAG, "onStart: mGoogleApiClient connect");
+            googleApiClient.connect();
+        }
+        super.onStart();
+    }
+
+    @Override
+    protected void onStop() {
+        if (requestingLocationUpdates) {
+            Log.d(TAG, "onStop : call stopLocationUpdates");
+            stopLocationUpdates();
+        }
+
+        if ( googleApiClient.isConnected()) {
+            Log.d(TAG, "onStop : mGoogleApiClient disconnect");
+            googleApiClient.disconnect();
+        }
+        super.onStop();
+    }
+
+    @Override
+    public void onConnected(Bundle connectionHint) {
+        if ( requestingLocationUpdates == false ) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                int hasFineLocationPermission = ContextCompat.checkSelfPermission(this,
+                        Manifest.permission.ACCESS_FINE_LOCATION);
+
+                if (hasFineLocationPermission == PackageManager.PERMISSION_DENIED) {
+                    ActivityCompat.requestPermissions(MainActivity.this,
+                            new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
+                            PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+                } else {
+                    Log.d(TAG, "onConnected : 퍼미션 가지고 있음");
+                    Log.d(TAG, "onConnected : call startLocationUpdates");
+                    startLocationUpdates();
+                    googleMap.setMyLocationEnabled(true);
+                }
+            }else{
+                Log.d(TAG, "onConnected : call startLocationUpdates");
+                startLocationUpdates();
+                googleMap.setMyLocationEnabled(true);
+            }
+        }
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+        Log.d(TAG, "onConnectionFailed");
+        setDefaultLocation();
+    }
+
+    @Override
+    public void onConnectionSuspended(int cause) {
+
+        Log.d(TAG, "onConnectionSuspended");
+        if (cause == CAUSE_NETWORK_LOST)
+            Log.e(TAG, "onConnectionSuspended(): Google Play services " +
+                    "connection lost.  Cause: network lost.");
+        else if (cause == CAUSE_SERVICE_DISCONNECTED)
+            Log.e(TAG, "onConnectionSuspended():  Google Play services " +
+                    "connection lost.  Cause: service disconnected");
+    }
+
+    public String getCurrentAddress(LatLng latlng) {
+
+        //지오코더... GPS를 주소로 변환
+        Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+        List<Address> addresses;
+        try {
+            addresses = geocoder.getFromLocation(
+                    latlng.latitude,
+                    latlng.longitude,
+                    1);
+        } catch (IOException ioException) {
+            //네트워크 문제
+            Toast.makeText(this, "지오코더 서비스 사용불가", Toast.LENGTH_LONG).show();
+            return "지오코더 서비스 사용불가";
+        } catch (IllegalArgumentException illegalArgumentException) {
+            Toast.makeText(this, "잘못된 GPS 좌표", Toast.LENGTH_LONG).show();
+            return "잘못된 GPS 좌표";
+
+        }
+
+        if (addresses == null || addresses.size() == 0) {
+            Toast.makeText(this, "주소 미발견", Toast.LENGTH_LONG).show();
+            return "주소 미발견";
+        } else {
+            Address address = addresses.get(0);
+            return address.getAddressLine(0).toString();
+        }
+
+    }
+
+
+    public boolean checkLocationServicesStatus() {
+        LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+                || locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+    }
+
+
+    /*현재 위치 아이콘 수정 할 수 있는 부분 */
+    public void setCurrentLocation(Location location, String markerTitle, String markerSnippet) {
+
+        moveMapByUser = false;
+
+//        18.08.26 주석처리
+//        if (currentMarker != null) currentMarker.remove();
+        LatLng currentLatLng = new LatLng(location.getLatitude(), location.getLongitude());
+//        MarkerOptions markerOptions = new MarkerOptions();
+//        markerOptions.position(currentLatLng);
+//        markerOptions.title(markerTitle);
+//        markerOptions.snippet(markerSnippet);
+//        markerOptions.draggable(true);
+
+        //구글맵의 디폴트 현재 위치는 파란색 동그라미로 표시
+        //마커를 원하는 이미지로 변경하여 현재 위치 표시하도록 수정 fix - 2017. 11.27
+        //markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_launcher)); //안드로이드 아이콘 18.08.26
+        // currentMarker = mGoogleMap.addMarker(markerOptions); //18.08.26
+
+        if ( moveMapByAPI ) {
+            Log.d( TAG, "setCurrentLocation :  mGoogleMap moveCamera "
+                    + location.getLatitude() + " " + location.getLongitude() ) ;
+            // CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(currentLatLng, 15);
+            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLng(currentLatLng);
+            googleMap.moveCamera(cameraUpdate);
+        }
+    }
+
+
+    public void setDefaultLocation() {
+
+        moveMapByUser = false;
+        //디폴트 위치, Seoul
+        LatLng DEFAULT_LOCATION = new LatLng(37.56, 126.97);
+        String markerTitle = "위치정보 가져올 수 없음";
+        String markerSnippet = "위치 퍼미션과 GPS 활성 요부 확인하세요";
+
+        if (currentMarker != null) currentMarker.remove();
+
+        MarkerOptions markerOptions = new MarkerOptions();
+        markerOptions.position(DEFAULT_LOCATION);
+        markerOptions.title(markerTitle);
+        markerOptions.snippet(markerSnippet);
+        markerOptions.draggable(true);
+        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+        currentMarker = googleMap.addMarker(markerOptions);
+
+        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(DEFAULT_LOCATION, 15);
+        googleMap.moveCamera(cameraUpdate);
+
+    }
+
+    //여기부터는 런타임 퍼미션 처리을 위한 메소드들
+    @TargetApi(Build.VERSION_CODES.M)
+    private void checkPermissions() {
+        boolean fineLocationRationale = ActivityCompat
+                .shouldShowRequestPermissionRationale(this,
+                        Manifest.permission.ACCESS_FINE_LOCATION);
+        int hasFineLocationPermission = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION);
+
+        if (hasFineLocationPermission == PackageManager
+                .PERMISSION_DENIED && fineLocationRationale)
+            showDialogForPermission("앱을 실행하려면 퍼미션을 허가하셔야합니다.");
+
+        else if (hasFineLocationPermission
+                == PackageManager.PERMISSION_DENIED && !fineLocationRationale) {
+            showDialogForPermissionSetting("퍼미션 거부 + Don't ask again(다시 묻지 않음) " +
+                    "체크 박스를 설정한 경우로 설정에서 퍼미션 허가해야합니다.");
+        } else if (hasFineLocationPermission == PackageManager.PERMISSION_GRANTED) {
+
+
+            Log.d(TAG, "checkPermissions : 퍼미션 가지고 있음");
+
+            if ( googleApiClient.isConnected() == false) {
+
+                Log.d(TAG, "checkPermissions : 퍼미션 가지고 있음");
+                googleApiClient.connect();
+            }
+        }
+    }
+    @Override
+    public void onRequestPermissionsResult(int permsRequestCode,
+                                           @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+
+
+        if (isAccessFineLocation && isAccessCoarseLocation) {
+
+            isPermission = true;
+
+        }
+
+        if (permsRequestCode
+                == PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION && grantResults.length > 0) {
+
+            boolean permissionAccepted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
+
+            if (permissionAccepted) {
+
+
+                if ( googleApiClient.isConnected() == false) {
+
+                    Log.d(TAG, "onRequestPermissionsResult : mGoogleApiClient connect");
+                    googleApiClient.connect();
+                }
+
+
+
+            } else {
+
+                checkPermissions();
+            }
+        }
+    }
+
+    @TargetApi(Build.VERSION_CODES.M)
+    private void showDialogForPermission(String msg) {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        builder.setTitle("알림");
+        builder.setMessage(msg);
+        builder.setCancelable(false);
+        builder.setPositiveButton("예", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                ActivityCompat.requestPermissions(MainActivity.this,
+                        new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
+                        PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+            }
+        });
+
+        builder.setNegativeButton("아니오", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                finish();
+            }
+        });
+        builder.create().show();
+    }
+
+    private void showDialogForPermissionSetting(String msg) {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        builder.setTitle("알림");
+        builder.setMessage(msg);
+        builder.setCancelable(true);
+        builder.setPositiveButton("예", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+
+                askPermissionOnceAgain = true;
+
+                Intent myAppSettings = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                        Uri.parse("package:" + MainActivity.this.getPackageName()));
+                myAppSettings.addCategory(Intent.CATEGORY_DEFAULT);
+                myAppSettings.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                MainActivity.this.startActivity(myAppSettings);
+            }
+        });
+        builder.setNegativeButton("아니오", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                finish();
+            }
+        });
+        builder.create().show();
+    }
+
+
+    //여기부터는 GPS 활성화를 위한 메소드들
+    private void showDialogForLocationServiceSetting() {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        builder.setTitle("위치 서비스 비활성화");
+        builder.setMessage("앱을 사용하기 위해서는 위치 서비스가 필요합니다.\n"
+                + "GPS 설정을 확인 하시겠습니까?");
+        builder.setCancelable(true);
+        builder.setPositiveButton("설정", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int id) {
+                Intent callGPSSettingIntent
+                        = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                startActivityForResult(callGPSSettingIntent, GPS_ENABLE_REQUEST_CODE);
+            }
+        });
+        builder.setNegativeButton("취소", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int id) {
+                dialog.cancel();
+            }
+        });
+        builder.create().show();
+    }
+
+
+    @Override
+    public void onPlacesFailure(PlacesException e) {
+
+    }
+
+    @Override
+    public void onPlacesStart() {
+
+    }
+
+    @Override
+    public void onPlacesSuccess(final List<Place> places) {
+        runOnUiThread(new Runnable() {
+
+            @Override
+            public void run() {
+                for (noman.googleplaces.Place place : places) {
+                    LatLng latLng  = new LatLng(place.getLatitude() , place.getLongitude());
+
+                    Log.d("color::",place.toString());
+
+                    String markerSnippet = getCurrentAddress(latLng);
+                    MarkerOptions markerOptions = new MarkerOptions();
+                    markerOptions.position(latLng);
+                    markerOptions.title(place.getName());
+                    markerOptions.snippet(markerSnippet);
+
+                    if(place.getTypes()[0].equals("restaurant") || place.getTypes()[1].equals("restaurant")){
+                        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));// 아이콘 색
+                    } else if (place.getTypes()[0].equals("convenience_store")){
+                        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW));
+                    }else if(place.getTypes()[0].equals("bicycle_store")){
+                        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
+                    }
+
+                    Marker item = googleMap.addMarker(markerOptions);
+                    previous_marker.add(item);
+                }
+
+
+                //중복 마커 제거
+
+                HashSet<Marker> hashSet = new HashSet<Marker>();
+                hashSet.addAll(previous_marker);
+                previous_marker.clear();
+                previous_marker.addAll(hashSet);
+
+
+            }
+
+        });
+
+
+    }
+
+    @Override
+    public void onPlacesFinished() {
+
+    }
+
+    //음식점 위치 검색!
+    public void showRestaurantInformation(LatLng location) {
+        googleMap.clear();//지도 클리어
+
+        if (previous_marker != null)
+            previous_marker.clear();//지역정보 마커 클리어
+
+        new NRPlaces.Builder()
+                .listener(MainActivity.this)
+                .key("AIzaSyB17qhzUpLlMGgrBm6E1RqM5FNURvZ-rRA")
+                .latlng(location.latitude, location.longitude)//현재 위치
+                .radius(500) //500 미터 내에서 검색
+                .type(PlaceType.RESTAURANT) //음식점
+                .language("ko", "KR")
+                .build()
+                .execute();
+
+    }
+
+    // 편의점 검색
+    public void showConvenienceInformation(LatLng location)    {
+        googleMap.clear();//지도 클리어
+
+        if (previous_marker != null)
+            previous_marker.clear();//지역정보 마커 클리어
+
+        new NRPlaces.Builder()
+                .listener(MainActivity.this)
+                .key("AIzaSyB17qhzUpLlMGgrBm6E1RqM5FNURvZ-rRA")
+                .latlng(location.latitude, location.longitude)//현재 위치
+                .radius(500) //500 미터 내에서 검색
+                .type(PlaceType.CONVENIENCE_STORE) //편의점
+                .language("ko","KR")
+                .build()
+                .execute();
+    }
+
+    // 주변 자전거 상점
+    public void showBikeMarketInformation(LatLng location)    {
+        googleMap.clear();//지도 클리어
+
+        if (previous_marker != null)
+            previous_marker.clear();//지역정보 마커 클리어
+
+        new NRPlaces.Builder()
+                .listener(MainActivity.this)
+                .key("AIzaSyB17qhzUpLlMGgrBm6E1RqM5FNURvZ-rRA")
+                .latlng(location.latitude, location.longitude)//현재 위치
+                .radius(500) //500 미터 내에서 검색
+                .type(PlaceType.BICYCLE_STORE) //자전거 상점
+                .language("ko","KR")
+                .build()
+                .execute();
+    }
+
+
+    // 애니메이션 리스너를 상속받은뒤, 메소드 오버라이딩
+    class  SlidingAnimaionListener implements Animation.AnimationListener {
+        @Override
+        public void onAnimationStart(Animation animation) {
+
+
+        }
+        @Override
+        public void onAnimationEnd(Animation animation) {
+
+        }
+        @Override
+        public void onAnimationRepeat(Animation animation) {
+
+        }
+    }
+
+    //리스트뷰를 위한 오버라이딩
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        drawerToggle.syncState();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        drawerToggle.onConfigurationChanged(newConfig);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if(drawerToggle.onOptionsItemSelected(item))
+            return true;
+        return super.onOptionsItemSelected(item);
+    }
+}

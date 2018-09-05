@@ -1,6 +1,169 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/window3"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:layout_weight="1"
+    android:visibility="gone">
 
-</LinearLayout>
+    <ScrollView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
+
+        <!-- 스크롤 바를 위한 공간 확보용 paddingRight="5px" -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:paddingRight="5px">
+
+            <View
+                android:layout_width="wrap_content"
+                android:layout_height="0.3dp"
+                android:background="@color/underLine" />
+
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="28dp"
+                android:background="@color/setBold"
+                android:gravity="left|center"
+                android:text="@string/txt1"
+                android:textColor="@color/txtMain" />
+
+            <View
+                android:layout_width="wrap_content"
+                android:layout_height="0.3dp"
+                android:background="@color/underLine" />
+
+            <Button
+                android:id="@+id/txt1btn1"
+                android:layout_width="match_parent"
+                android:layout_height="25dp"
+                android:background="#ffffff"
+                android:gravity="left|center"
+                android:text="@string/txt1ch1"
+                android:textColor="@color/txtSub" />
+
+            <View
+                android:layout_width="wrap_content"
+                android:layout_height="0.3dp"
+                android:background="@color/underLine" />
+
+            <!--개인설정-->
+
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="28dp"
+                android:background="@color/setBold"
+                android:gravity="left|center"
+                android:text="@string/txt2"
+                android:textColor="@color/txtMain" />
+
+            <View
+                android:layout_width="wrap_content"
+                android:layout_height="0.3dp"
+                android:background="@color/underLine" />
+
+            <Button
+                android:id="@+id/txt2btn1"
+                android:layout_width="match_parent"
+                android:layout_height="25dp"
+                android:background="#ffffff"
+                android:gravity="left|center"
+                android:text="@string/txt2ch1"
+                android:textColor="@color/txtSub" />
+
+            <View
+                android:layout_width="wrap_content"
+                android:layout_height="0.3dp"
+                android:background="@color/underLine" />
+
+            <Button
+                android:id="@+id/txt2btn2"
+                android:layout_width="match_parent"
+                android:layout_height="25dp"
+                android:background="#ffffff"
+                android:gravity="left|center"
+                android:text="@string/txt2ch2"
+                android:textColor="@color/txtSub" />
+
+            <View
+                android:layout_width="wrap_content"
+                android:layout_height="0.3dp"
+                android:background="@color/underLine" />
+
+
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="28dp"
+                android:background="@color/setBold"
+                android:gravity="left|center"
+                android:text="@string/txt3"
+                android:textColor="@color/txtMain" />
+
+            <View
+                android:layout_width="wrap_content"
+                android:layout_height="0.3dp"
+                android:background="@color/underLine" />
+
+            <Button
+                android:id="@+id/txt3btn1"
+                android:layout_width="match_parent"
+                android:layout_height="25dp"
+                android:background="#ffffff"
+                android:gravity="left|center"
+                android:text="@string/txt3ch1"
+                android:textColor="@color/txtSub" />
+
+            <View
+                android:layout_width="wrap_content"
+                android:layout_height="0.3dp"
+                android:background="@color/underLine" />
+
+            <Button
+                android:id="@+id/txt3btn2"
+                android:layout_width="match_parent"
+                android:layout_height="25dp"
+                android:background="#ffffff"
+                android:gravity="left|center"
+                android:text="@string/txt3ch2"
+                android:textColor="@color/txtSub" />
+
+            <View
+                android:layout_width="wrap_content"
+                android:layout_height="0.3dp"
+                android:background="@color/underLine" />
+
+            <Button
+                android:id="@+id/txt3btn3"
+                android:layout_width="match_parent"
+                android:layout_height="25dp"
+                android:background="#ffffff"
+                android:gravity="left|center"
+                android:text="@string/txt3ch3"
+                android:textColor="@color/txtSub" />
+
+            <View
+                android:layout_width="wrap_content"
+                android:layout_height="0.3dp"
+                android:background="@color/underLine" />
+
+            <Button
+                android:id="@+id/txt3btn4"
+                android:layout_width="match_parent"
+                android:layout_height="25dp"
+                android:background="#ffffff"
+                android:gravity="left|center"
+                android:text="@string/txt3ch4"
+                android:textColor="@color/txtSub" />
+
+            <View
+                android:layout_width="wrap_content"
+                android:layout_height="0.3dp"
+                android:background="@color/underLine" />
+
+
+        </LinearLayout>
+    </ScrollView>
+
+</FrameLayout>
