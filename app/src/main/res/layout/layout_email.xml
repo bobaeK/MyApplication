@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/windowEmail"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_weight="1"
+    android:visibility="gone">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+        <!--뒤로가기, 보내기버튼-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:paddingRight="5dp"
+            android:paddingLeft="5dp">
+            <Button
+                android:id="@+id/backEmail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="뒤로가기"
+                android:layout_weight="0.2"
+                android:onClick="onMapIconClick"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.3"
+                android:visibility="invisible" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="invisible"
+                android:layout_weight="0.3" />
+
+            <Button
+                android:id="@+id/sendEmail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/send"
+                android:layout_weight="0.3"
+                android:onClick="onMapIconClick"/>
+        </LinearLayout>
+
+        <!--받는 사람-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:paddingRight="5dp"
+            android:paddingLeft="5dp"
+            >
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/recieve"
+                android:layout_weight="0.3"
+                />
+
+            <TextView
+                android:id="@+id/eAdress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="obelock12@gmail.com"
+                android:layout_weight="0.3" />
+
+        </LinearLayout>
+
+        <!--제목 레이어-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:paddingRight="5dp"
+            android:paddingLeft="5dp"
+            >
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/subject"
+                android:layout_weight="0.14"
+                />
+
+            <EditText
+                android:id="@+id/eSubject"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:hint="@string/subjecthint"
+                android:inputType="textEmailAddress"
+                android:layout_weight="0.3"
+                />
+        </LinearLayout>
+
+        <!-- 내용 레이어-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="7"
+            android:gravity="top"
+            android:paddingRight="5dp"
+            android:paddingLeft="5dp"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/econ" />
+
+            <EditText
+                android:id="@+id/eCon"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/emailcontent"
+                android:gravity="top"
+                android:lines="13"
+                android:inputType="textMultiLine"
+                android:background="@null"
+                android:imeOptions="actionSearch" />
+        </LinearLayout>
+    </LinearLayout>
+</FrameLayout>

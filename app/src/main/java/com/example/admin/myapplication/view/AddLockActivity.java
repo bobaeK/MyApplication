@@ -185,15 +185,24 @@ public class AddLockActivity extends AppCompatActivity {
             //파일에 저장
             try
             {
-                Log.i(TAG, "get lock-info" );
                 BufferedWriter bw = new BufferedWriter(new FileWriter(getFilesDir() + "lock_info.txt"));
-                bw.append(String.valueOf(lock.getOrder()));
-                bw.append(lock.getMacAddr());
-                bw.append(lock.getName());
-                bw.append(String.valueOf(lock.getBattery()));
-                bw.append(String.valueOf(lock.getState()));
 
-                Log.d(TAG, "write lock-info" );
+                for(int i = 0; i < lockManager.size(); ++i) {
+                    Log.i(TAG, "get lock-info");
+                    lock = lockManager.get(i);
+                    bw.append(lock.getName());
+                    bw.append('\n');
+                    bw.append(String.valueOf(lock.getOrder()));
+                    bw.append('\n');
+                    bw.append(lock.getMacAddr());
+                    bw.append('\n');
+                    bw.append(String.valueOf(lock.getBattery()));
+                    bw.append('\n');
+                    bw.append(String.valueOf(lock.getState()));
+                    bw.append('\n');
+                    Log.d(TAG, "write lock-info");
+                }
+                bw.append("%%end%%");
                 bw.close();
             }
             catch (FileNotFoundException e)

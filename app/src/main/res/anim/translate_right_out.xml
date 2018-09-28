@@ -2,12 +2,15 @@
 <set xmlns:android="http://schemas.android.com/apk/res/android"
     android:interpolator="@android:anim/accelerate_decelerate_interpolator">
 
-    <!--오른쪽에서 들어오는 거-->
-    <translate 
-        android:fromXDelta="100%p"
-        android:toXDelta="0%p"
+
+    <!--오른쪽으로 나가기-->
+    <translate
+        android:fromXDelta="0%p"
+        android:toXDelta="100%p"
         android:duration="1000"
         android:fillAfter="true"
         />
+
+
 
 </set>

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/window2"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -56,11 +57,19 @@
                 android:layout_height="match_parent"
                 android:visibility="gone">
 
+                <!--18.09.07 최고속도 120으로 맞춤, 및 각종 보정-->
                 <com.github.anastr.speedviewlib.SpeedView
                     android:id="@+id/speedView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center" />
+                    android:layout_gravity="center"
+                    app:sv_maxSpeed="120"
+                    app:sv_withTremble="false"
+                    app:sv_tickNumber="5"
+                    sv_trembleDegree="6"
+                    sv_trembleDuration="2100"
+                    app:sv_lowSpeedPercent="30"
+                    app:sv_mediumSpeedPercent="75" />
 
                 <ImageButton
                     android:id="@+id/mapButton"
@@ -90,6 +99,12 @@
                         android:layout_height="match_parent"
                         android:layout_margin="5dp"
                         android:orientation="vertical">
+                        <!--18.09.03 코드 위치 변경-->
+                        <Button
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@android:color/transparent"
+                            android:visibility="invisible" />
                         <ImageButton
                             android:id="@+id/mapBike"
                             android:layout_width="wrap_content"
@@ -114,11 +129,6 @@
                             android:background="@android:color/transparent"
                             android:src="@drawable/mapconvenience"
                             android:onClick="onMapIconClick"/>
-                        <Button
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:background="@android:color/transparent"
-                            android:visibility="invisible" />
                         <Button
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -236,7 +246,6 @@
                 android:drawableLeft="@drawable/stopicon"
                 android:drawablePadding="15dip"
                 android:gravity="left|center_vertical"
-
 
                 android:paddingLeft="35dip"
                 android:text="주행종료"

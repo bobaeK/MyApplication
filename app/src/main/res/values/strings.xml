@@ -33,16 +33,16 @@
     <string name="cur">current speed</string>
     <string name="max">maximum speed</string>
 
-    <string name="txt1">개인설정</string>
+    <string name="txt1">연결설정</string>
     <string name="txt1ch1">상세설정</string>
     <string name="txt2">자물쇠관리</string>
     <string name="txt2ch1">자물쇠등록</string>
     <string name="txt2ch2">자물쇠변경</string>
     <string name="txt3">고객센터</string>
     <string name="txt3ch1">공지사항</string>
-    <string name="txt3ch2">이메일문의</string>
-    <string name="txt3ch3">개발스토리</string>
-    <string name="txt3ch4">라이센스</string>
+    <string name="txt3ch2">QnA</string>
+    <string name="txt3ch3">이메일문의</string>
+    <string name="txt3ch4">개발스토리</string>
     <string name="title_activity_template">TemplateActivity</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -52,11 +52,40 @@
     <string name="action_settings">Settings</string>
 
 
-    <string name="menu1"> 처음화면 </string>
-    <string name="menu2"> 주행화면 </string>
-    <string name="menu3"> 설정화면 </string>
+    <string name="menu1"> OBELOCK </string>
+    <string name="menu2"> 주행모드 </string>
+    <string name="menu3"> 설정 </string>
 
     <string name="open">open</string>
     <string name="close">close</string>
 
+    <!--18.08.29-->
+    <string name="recieve">받는 사람: </string>
+    <string name="sender">보내는 사람: </string>
+    <string name="send">보내기</string>
+    <string name="recieveAdress">메일 주소를 입력해 주세요</string>
+    <string name="emailcontent">내용을 입력해 주세요\n회신 받을 이메일 주소를 꼭 기재해 주세요</string>
+
+    <string name="subject">제목: </string>
+    <string name="subjecthint">제목을 입력해 주세요</string>
+    <string name="econ">내용: </string>
+
+
+    <!--18.09.03-->
+    <string name="info1">2018.09.03 OBELOCK 첫 앱개발에 성공 하였습니다.</string>
+    <string name="info1Context">
+        안녕하세요? OBELOCK의 관리자입니다.\n
+        Team Chaser의 개발이 6월에 시작한 이후로 \n
+        약 2개월만에 관련 1차 개발이 끝났습니다.\n
+        추후에 안정성 테스트를 진행하여\n
+        사용자 여러분에 불편함을 최소화 하도록 노력하겠습니다.\n
+        감사합니다.
+    </string>
+
+    <string name="question1">자전거 자물쇠를 바꾸고 싶어요!</string>
+    <string name="question2">자물쇠가 끊겼는데 어떻게 해야하나요?</string>
+    <string name="question3">주변 시설 검색이 안되는거 같아요!</string>
+    <string name="answer1">설정 -> 자물쇠 변경에서 가능합니다.</string>
+    <string name="answer2">이메일 문의 주시면 A/S에 대해 알려드리겠습니다.</string>
+    <string name="answer3">일정 범위 이내의 해당하는 모든 편의시설을\n검색하기 때문에 다소 느릴 수 있습니다. </string>
 </resources>

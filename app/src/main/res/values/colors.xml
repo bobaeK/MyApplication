@@ -31,4 +31,9 @@
 
     <color name="rideSrt">#3498ff</color>
     <color name="rideFns">#e74c3c </color>
+
+    <color name="app_blue">#045CB1</color>
+
+    <color name="listHeader">#c6e5ff</color>
+    <color name="listBody">#bcbcbc</color>
 </resources>

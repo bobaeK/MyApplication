@@ -26,7 +26,6 @@
             android:layout_height="match_parent"
             layout="@layout/layout_main"/>
 
-
         <!--Window2-->
         <include
             android:layout_width="match_parent"
@@ -39,6 +38,29 @@
             android:layout_height="match_parent"
             layout="@layout/layout_setting"/>
 
+        <!--windowNotice-->
+        <include
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            layout="@layout/layout_notice"/>
+
+        <!--windowEmail-->
+        <include
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            layout="@layout/layout_email"/>
+
+        <!--windowEmail-->
+        <include
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            layout="@layout/layout_email"/>
+
+        <!--windowStory-->
+        <include
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            layout="@layout/layout_story"/>
 
         <!--하단 네비게이션-->
         <android.support.design.widget.BottomNavigationView
@@ -52,5 +74,4 @@
             app:menu="@menu/bottom_navigation_main">
         </android.support.design.widget.BottomNavigationView>
     </RelativeLayout>
-
 </android.support.v4.widget.DrawerLayout>

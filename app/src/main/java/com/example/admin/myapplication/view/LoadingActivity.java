@@ -63,6 +63,14 @@ public class LoadingActivity extends AppCompatActivity
                         /*데이터 파싱*/
                         token = new StringTokenizer(temp);
                         //lock 정보 가져오기
+                        String name;
+                        while("%%end%%".equals((name = br.readLine()))){
+                            lock.setName(name);
+                            lock.setOrder(Integer.parseInt(br.readLine()));
+                            lock.setMacAddr(br.readLine());
+                            lock.setBattery(Integer.parseInt(br.readLine()));
+                            lock.setState(Integer.parseInt(br.readLine()));
+                        }
                         lockManager.add(lock);
                     }
                     Log.i(TAG, "close lock-info" );
@@ -95,7 +103,7 @@ public class LoadingActivity extends AppCompatActivity
                     finish();
                 }
                 //등록된 디바이스 test할때는 != 0으로
-                if(lockManager.size() != 0)
+                if(lockManager.size() == 0)
                 {
                     /*
                      *등록된 자물쇠가 없는경우

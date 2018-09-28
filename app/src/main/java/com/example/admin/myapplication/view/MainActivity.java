@@ -22,6 +22,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Parcelable;
+import android.os.StrictMode;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
@@ -32,6 +33,8 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -40,11 +43,13 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -53,6 +58,7 @@ import com.example.admin.myapplication.controller.BluetoothService;
 import com.example.admin.myapplication.controller.OpenWeatherAPITask;
 import com.example.admin.myapplication.R;
 import com.example.admin.myapplication.vo.Distance;
+import com.example.admin.myapplication.vo.GMail;
 import com.example.admin.myapplication.vo.GpsInfo;
 import com.example.admin.myapplication.vo.Lock;
 import com.example.admin.myapplication.vo.Weather;
@@ -78,6 +84,9 @@ import java.util.List;
 import java.util.Locale;
 ;
 import java.util.concurrent.ExecutionException;
+
+import javax.mail.MessagingException;
+import javax.mail.SendFailedException;
 
 import noman.googleplaces.NRPlaces;
 import noman.googleplaces.Place;
@@ -259,8 +268,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private FrameLayout spdToMap, mapToSpd;
 
     //18.08.19 주행화면<-> 지도 애니메이션
-    Animation translateLeft = null;
-    Animation translateRight = null;
+    Animation translateLeftIn = null;
+    Animation translateRightIn = null;
+    Animation translateLeftOut = null;
+    Animation translateRightOut = null;
 
     //Template 관련
     BottomNavigationView bottomNavigationView;
@@ -268,10 +279,25 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     //18.08.26 리스트뷰 관련
     ActionBarDrawerToggle drawerToggle;
-    String [] drawer_str={"처음화면","자물쇠관리","주행하기","공지사항","OBELOCK?","설정"};
+    String [] drawer_str={"OBELOCK BODY"};
+    DrawerLayout drawerLayout;
+    ListView listView;
+
+    //18.08.29 이메일 관련 변수
+    FrameLayout windowEmail;
+    TextView eAdress;
+    EditText eContents, esubject;
+
+    //18.08.29 상세설정 관련 변수
+    Switch bluetoothSwitch, gpsSwitch;
+    FrameLayout windowNotice, windowQna, windowStory;
 
 
+    //18.08.28
+    android.support.v7.app.ActionBar titleName;
 
+    //18.09.03
+    private RecyclerView recyclerNotice, recyclerQna;
 
     public void onActivityResult(int requestCode, int resultCode, Intent data){
         super.onActivityResult(requestCode, resultCode, data);
@@ -326,6 +352,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onCreate(savedInstanceState);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
                 WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+        //18.08.28
+        titleName = getSupportActionBar();
+        //18.08.29 인터넷 사용권한 허용
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
+
         setContentView(R.layout.activity_main);
 
         Log.d(TAG, "onCreate");
@@ -341,6 +374,95 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         outStringBuffer = new StringBuffer("");
 
+
+
+
+        //18.09.03 리사이클 공지사항
+        recyclerNotice = (RecyclerView) findViewById(R.id.recyclerNotice);
+        recyclerNotice.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+        List<ExpandableListAdapter.Item> data = new ArrayList<>();
+        ExpandableListAdapter.Item info = new ExpandableListAdapter.Item(ExpandableListAdapter.HEADER, getResources().getString(R.string.info1));
+        info.invisibleChildren = new ArrayList<>();
+        info.invisibleChildren.add(new ExpandableListAdapter.Item(ExpandableListAdapter.CHILD, getString(R.string.info1Context)));
+
+        data.add(info);
+        recyclerNotice.setAdapter(new ExpandableListAdapter(data));
+
+        //18.09.03 리사이클 QnA
+        recyclerQna = (RecyclerView) findViewById(R.id.recyclerQna);
+        recyclerQna.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+        List<ExpandableListAdapter.Item> answer = new ArrayList<>();
+
+        ExpandableListAdapter.Item problem1 = new ExpandableListAdapter.Item(ExpandableListAdapter.HEADER, getResources().getString(R.string.question1));
+        problem1.invisibleChildren = new ArrayList<>();
+        problem1.invisibleChildren.add(new ExpandableListAdapter.Item(ExpandableListAdapter.CHILD, getString(R.string.answer1)));
+
+        ExpandableListAdapter.Item problem2 = new ExpandableListAdapter.Item(ExpandableListAdapter.HEADER, getResources().getString(R.string.question2));
+        problem2.invisibleChildren = new ArrayList<>();
+        problem2.invisibleChildren.add(new ExpandableListAdapter.Item(ExpandableListAdapter.CHILD, getString(R.string.answer2)));
+
+        ExpandableListAdapter.Item problem3 = new ExpandableListAdapter.Item(ExpandableListAdapter.HEADER, getResources().getString(R.string.question3));
+        problem3.invisibleChildren = new ArrayList<>();
+        problem3.invisibleChildren.add(new ExpandableListAdapter.Item(ExpandableListAdapter.CHILD, getString(R.string.answer3)));
+
+
+        answer.add(problem1);
+        answer.add(problem2);
+        answer.add(problem3);
+        recyclerQna.setAdapter(new ExpandableListAdapter(answer));
+
+
+
+        //18.08.29 이메일 사전준비
+        eAdress = (TextView)findViewById(R.id.eAdress);
+        esubject = (EditText)findViewById(R.id.eSubject);
+        eContents = (EditText)findViewById(R.id.eCon);
+        windowEmail = (FrameLayout)findViewById(R.id.windowEmail);
+
+
+
+        //18.08.29 상세설정
+//        windowDetailSetting = (FrameLayout)findViewById(R.id.windowDetailSetting);
+//        backDetailSetting = (Button)findViewById(R.id.backDetailSetting);
+//        txt1btn1 = (Button)findViewById(R.id.txt1btn1);
+        bluetoothSwitch = (Switch)findViewById(R.id.bluetooth_switch);
+        gpsSwitch = (Switch)findViewById(R.id.gps_switch);
+
+//        backDetailSetting.setOnClickListener(this);
+//        txt1btn1.setOnClickListener(this);
+
+        //현재 블루투스랑 gps가 On 인지 확인해서 스위치 온오프 상태 설정하기
+        bluetoothSwitch.setChecked(false);
+        gpsSwitch.setChecked(false);
+        bluetoothSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if(b){
+                    //체크On 상태
+                    Toast.makeText(getApplicationContext(),"블루투스를 켰습니다.", Toast.LENGTH_SHORT).show();
+                }else{
+                    Toast.makeText(getApplicationContext(),"블루투스를 껐습니다.", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        gpsSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if(b){
+                    //체크On 상태
+                    Toast.makeText(getApplicationContext(),"gps를 켰습니다.", Toast.LENGTH_SHORT).show();
+                }else{
+                    Toast.makeText(getApplicationContext(),"gps를 껐습니다.", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        //18.08.29 설정창 -> 화면간의 이동
+        windowNotice = (FrameLayout)findViewById(R.id.windowNotice);
+        windowQna = (FrameLayout)findViewById(R.id.windowQna);
+        windowStory = (FrameLayout)findViewById(R.id.windowStory);
+
         //MAP
         previous_marker = new ArrayList<Marker>();
 
@@ -354,10 +476,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        //18.08.19 리스트 네비게이션
-        DrawerLayout drawerLayout=(DrawerLayout)findViewById(R.id.drawerlayout);
-        ListView listView=(ListView)findViewById(R.id.drawer);
-
+        //18.08.29 리스트뷰 관련 추가
+        final View header = getLayoutInflater().inflate(R.layout.listitem_header, null, false); //헤더관련
+        drawerLayout=(DrawerLayout)findViewById(R.id.drawerlayout); // 최상위 레이아웃 이름
+        listView=(ListView)findViewById(R.id.drawer); // 하위 리스트뷰 레이아웃 이름
+        listView.addHeaderView(header); //헤더 추가
         ArrayAdapter<String> adapter=new ArrayAdapter<String>(this,R.layout.listitem,drawer_str);
         listView.setAdapter(adapter);
 
@@ -418,15 +541,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mapToSpd = (FrameLayout)findViewById(R.id.mapToSpd);
         spdToMap = (FrameLayout)findViewById(R.id.spdToMap);
 
-        //18.08.19 스피드미터 <-> 맵 화면전환 애니메이션
-        translateLeft = AnimationUtils.loadAnimation(this,R.anim.translate_left);
-        translateRight = AnimationUtils.loadAnimation(this,R.anim.translate_right);
 
-
-        //18.08.26 <<화면전환 애니메이션
-        SlidingAnimaionListener saListener = new SlidingAnimaionListener(); // 아래서 정의한 클래스를 선언
-        translateLeft.setAnimationListener(saListener); // 선언한 클래스를 input 값으로 지정
-        translateRight.setAnimationListener(saListener); // 선언한 클래스를 input 값으로 지정
+        //18.08.29 변경 스피드미터 <-> 맵 화면전환 애니메이션
+        translateLeftIn = AnimationUtils.loadAnimation(this,R.anim.translate_left_in);
+        translateRightIn = AnimationUtils.loadAnimation(this,R.anim.translate_right_in);
+        translateLeftOut = AnimationUtils.loadAnimation(this,R.anim.translate_left_out);
+        translateRightOut =  AnimationUtils.loadAnimation(this,R.anim.translate_right_out);
 
 
 
@@ -445,21 +565,39 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 switch (item.getItemId()) {
 
                     case R.id.btnWindow1:
+                        titleName.setTitle("OBELOCK"); //18.08.28
                         window1.setVisibility(View.VISIBLE);
                         window2.setVisibility(View.GONE);
                         window3.setVisibility(View.GONE);
+                        windowEmail.setVisibility(View.GONE);//18.08.29
+//                        windowDetailSetting.setVisibility(View.GONE);//18.08.29
+                        windowQna.setVisibility(View.GONE);//18.08.29
+                        windowNotice.setVisibility(View.GONE);//18.08.29
+                        windowStory.setVisibility(View.GONE);//18.08.29
                         break;
 
                     case R.id.btnWindow2:
+                        titleName.setTitle("주행모드(속도계)");//18.08.28
                         window1.setVisibility(View.GONE);
                         window2.setVisibility(View.VISIBLE);
                         window3.setVisibility(View.GONE);
+                        windowEmail.setVisibility(View.GONE);//18.08.29
+//                        windowDetailSetting.setVisibility(View.GONE);//18.08.29
+                        windowQna.setVisibility(View.GONE);//18.08.29
+                        windowNotice.setVisibility(View.GONE);//18.08.29
+                        windowStory.setVisibility(View.GONE);//18.08.29
                         break;
 
                     case R.id.btnWindow3:
+                        titleName.setTitle("설정");//18.08.28
                         window1.setVisibility(View.GONE);
                         window2.setVisibility(View.GONE);
                         window3.setVisibility(View.VISIBLE);
+                        windowEmail.setVisibility(View.GONE);//18.08.29
+//                        windowDetailSetting.setVisibility(View.GONE); //18.08.29
+                        windowQna.setVisibility(View.GONE);//18.08.29
+                        windowNotice.setVisibility(View.GONE);//18.08.29
+                        windowStory.setVisibility(View.GONE);//18.08.29
                         break;
                 }
                 return true;
@@ -494,6 +632,21 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     isReset = false;
                     isBtnClickStart = true;
 
+                    // GPS 설정 18.09.07
+                    GpsInfo gps = new GpsInfo(getApplicationContext());
+                    if (gps.isGetLocation()) {
+                        /* 첫 시작 지점*/
+                        Log.d("GPS사용", "찍힘" + timer);
+                        double latitude = gps.getLatitude();
+                        double longitude = gps.getLongitude();
+                        LatLng latLng = new LatLng(latitude, longitude);
+
+                        /* 이전의 GPS 정보 저장*/
+                        bef_lat = latitude;
+                        bef_long = longitude;
+
+                    }
+
                     /* 타이머를 위한 Handler */
                     time_handler = new Handler() {
                         @Override
@@ -502,13 +655,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                             timer++; // Timer 증가
                             /* Text View 갱신*/
                             tv_rideTime.setText(String.format("%02d",(timer/3600))+" : "  + String.format("%02d",(timer%3600)/60) +" : "+String.format("%02d",(timer%3600)%60));
-                            tv_rideDis.setText(String.format("%.2f",sum_dist) + " Km");
 
-                            //위의 로케이션리스너에서 값을 수시로 바꾸고 있을때 스타트 버튼을 눌렀을 때에만 밑에 표기 하기 위함
-                            //test중
-                            txtCur.setText(String.format("%.2f",mySpeed) + " Km/h");
-                            txtMax.setText(String.format("%.2f",maxSpeed) + " Km/h");
-                            spdview.speedTo((float)mySpeed);
+
                             /* 3초 마다 GPS를 찍기 위한 소스*/
                             if (timer % 3 == 0) {
                                 GpsInfo gps = new GpsInfo(getApplicationContext());
@@ -525,19 +673,33 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                     /* 이전의 GPS 정보와 현재의 GPS 정보로 거리를 구한다.*/
                                     Distance calcDistance = new Distance(bef_lat,bef_long,cur_lat,cur_long); // 거리계산하는 클래스 호출
                                     double dist = calcDistance.getDistance();
-                                    dist = (int)(dist * 100) / 100.0;
+                                    dist = Math.round(dist*100d) / 100d; // 소숫점 2째자리
                                     sum_dist += dist;
 
                                     /* 이전의 GPS 정보를 현재의 GPS 정보로 변환한다. */
                                     bef_lat = cur_lat;
                                     bef_long = cur_long;
 
+
+                                    //위의 로케이션리스너에서 값을 수시로 바꾸고 있을때 스타트 버튼을 눌렀을 때에만 밑에 표기 하기 위함
+                                    //test중
+                                    txtCur.setText(String.format("%.2f",mySpeed) + " Km/h");
+                                    txtMax.setText(String.format("%.2f",maxSpeed) + " Km/h");
+                                    tv_rideDis.setText(String.format("%.2f",sum_dist) + " Km");
+
+                                    //18.09.07
+
+                                    spdview.speedTo((float)mySpeed,2100); //18.09.07 스피드 띄운후 2.1초동안 지속
+
+
                                 }
                             }
                         }
                     };
+
                     time_handler.sendEmptyMessage(0);
                 }
+
             }
 
 
@@ -547,6 +709,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         btn_timer_finish.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 Toast.makeText(getApplicationContext(), "주행을 종료합니다.", Toast.LENGTH_SHORT).show();
 
                 /* Timer Handler 제거 */
@@ -558,16 +721,20 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 /*값 초기화*/
                 sum_dist=0;
+                mySpeed = 0;
+                maxSpeed = 0;
                 timer = 0;
 
                 tv_rideTime.setText("00 : 00 : 00");
                 tv_rideDis.setText("0.00 Km");
                 txtCur.setText("0.00 Km/h");
                 txtMax.setText("0.00 Km/h");
+                spdview.speedTo(0,2100);
 
                 btn_timer_start.setText("주행시작");
                 btn_timer_start.setBackgroundColor(Color.rgb(52,152,255));
                 btn_timer_start.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.starticon,0,0,0); //18.08.26
+
             }
         }); // 주행종료
 
@@ -581,8 +748,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             // for ActivityCompat#requestPermissions for more details.
             return;
         }
-        //GPS PROVIDER 일때 최소 0초마다 혹은 0미터 변동 되었을때 마다 리스너를 호출 한다.
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+        //GPS PROVIDER 일때 최소 2.1초마다 혹은 0미터 변동 되었을때 마다 리스너를 호출 한다.
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2100, 0, locationListener);
 
         callPermission();  // 권한 요청을 해야 함
 
@@ -765,17 +932,94 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             case R.id.spdButton:
 
-                spdToMap.startAnimation(translateRight);
+                spdToMap.startAnimation(translateRightIn);
                 spdToMap.setVisibility(View.VISIBLE);
                 mapToSpd.setVisibility(View.GONE);
                 break;
 
             case R.id.mapButton:
-
-                mapToSpd.startAnimation(translateLeft);
+                mapToSpd.startAnimation(translateLeftIn);
+                spdToMap.startAnimation(translateLeftOut);
                 mapToSpd.setVisibility(View.VISIBLE);
                 spdToMap.setVisibility(View.GONE);
+                titleName.setTitle("주행모드(지도)");//18.08.28
                 break;
+
+            //18.08.29
+            case R.id.txt3btn1:
+                titleName.setTitle("공지사항");
+                window3.startAnimation(translateLeftOut);
+                windowNotice.startAnimation(translateLeftIn);
+                window3.setVisibility(View.GONE);
+                windowNotice.setVisibility(View.VISIBLE);
+                break;
+
+            //18.08.29
+            case R.id.txt3btn2:
+                titleName.setTitle("QnA");
+                window3.startAnimation(translateLeftOut);
+                windowQna.startAnimation(translateLeftIn);
+                window3.setVisibility(View.GONE);
+                windowQna.setVisibility(View.VISIBLE);
+                break;
+
+            //18.08.29
+            case R.id.txt3btn3:
+                titleName.setTitle("이메일 문의");
+                window3.startAnimation(translateLeftOut);
+                windowEmail.startAnimation(translateLeftIn);
+                window3.setVisibility(View.GONE);
+                windowEmail.setVisibility(View.VISIBLE);
+                esubject.setText("");
+                eContents.setText("");
+                break;
+
+            //18.08.29
+            case R.id.txt3btn4:
+                titleName.setTitle("개발스토리");
+                window3.startAnimation(translateLeftOut);
+                windowStory.startAnimation(translateLeftIn);
+                window3.setVisibility(View.GONE);
+                windowStory.setVisibility(View.VISIBLE);
+                break;
+
+
+            //18.08.29
+            case R.id.backNotice:
+                window3.startAnimation(translateRightIn);
+                windowNotice.startAnimation(translateRightOut);
+                windowNotice.setVisibility(View.GONE);
+                window3.setVisibility(View.VISIBLE);
+                titleName.setTitle("설정");
+                break;
+
+            //18.08.29
+            case R.id.backQna:
+                titleName.setTitle("설정");
+                window3.startAnimation(translateRightIn);
+                windowQna.startAnimation(translateRightOut);
+                windowQna.setVisibility(View.GONE);
+                window3.setVisibility(View.VISIBLE);
+                break;
+
+            //18.08.29
+            case R.id.backEmail:
+                titleName.setTitle("설정");
+                window3.startAnimation(translateRightIn);
+                windowEmail.startAnimation(translateRightOut);
+                windowEmail.setVisibility(View.GONE);
+                window3.setVisibility(View.VISIBLE);
+                break;
+
+            //18.08.29
+            case R.id.backStory:
+                titleName.setTitle("설정");
+                window3.startAnimation(translateRightIn);
+                windowStory.startAnimation(translateRightOut);
+                windowStory.setVisibility(View.GONE);
+                window3.setVisibility(View.VISIBLE);
+                break;
+
 
             case R.id.mapRestaurant:
                 showRestaurantInformation(currentPosition);
@@ -788,6 +1032,32 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             case R.id.mapBike:
                 showBikeMarketInformation(currentPosition);
                 break;
+
+            //18.08.29
+            case R.id.sendEmail:
+                try {
+                    GMail gMailSender = new GMail("obelock12@gmail.com", "team-chaser1");
+                    gMailSender.sendMail(esubject.getText().toString(), eContents.getText().toString(), eAdress.getText().toString());
+                    Toast.makeText(getApplicationContext(), "이메일을 성공적으로 보냈습니다.", Toast.LENGTH_SHORT).show();
+
+                    window3.startAnimation(translateRightIn);
+                    windowEmail.startAnimation(translateRightOut);
+                    windowEmail.setVisibility(View.GONE);
+                    window3.setVisibility(View.VISIBLE);
+                    titleName.setTitle("설정");
+
+                } catch (SendFailedException e) {
+                    Toast.makeText(getApplicationContext(), "이메일 형식이 잘못되었습니다.", Toast.LENGTH_SHORT).show();
+
+                } catch (MessagingException e) {
+                    Toast.makeText(getApplicationContext(), "인터넷 연결을 확인해주십시오", Toast.LENGTH_SHORT).show();
+
+                } catch (Exception e) {
+                    Log.e("SendMail", e.getMessage(), e);
+                    e.printStackTrace();
+                }
+                break;
+
         }
     }
     // 권한 요청
@@ -844,11 +1114,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         //런타임 퍼미션 요청 대화상자나 GPS 활성 요청 대화상자 보이기전에
         //지도의 초기위치를 서울로 이동
         setDefaultLocation();
-        googleMap.getUiSettings().setZoomControlsEnabled(true);//18.08.26
-        googleMap.getUiSettings().setMyLocationButtonEnabled(true);
+        this.googleMap.getUiSettings().setZoomControlsEnabled(true);//18.08.26
+        this.googleMap.getUiSettings().setMyLocationButtonEnabled(true);
 
-        googleMap.animateCamera(CameraUpdateFactory.zoomTo(15));
-        googleMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener(){
+        this.googleMap.animateCamera(CameraUpdateFactory.zoomTo(15));
+        this.googleMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener(){
 
             @Override
             public boolean onMyLocationButtonClick() {
@@ -857,7 +1127,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 return true;
             }
         });
-        googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+        this.googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
 
             @Override
             public void onMapClick(LatLng latLng) {
@@ -865,7 +1135,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
-        googleMap.setOnCameraMoveStartedListener(new GoogleMap.OnCameraMoveStartedListener() {
+        this.googleMap.setOnCameraMoveStartedListener(new GoogleMap.OnCameraMoveStartedListener() {
 
             @Override
             public void onCameraMoveStarted(int i) {
@@ -879,7 +1149,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
 
 
-        googleMap.setOnCameraMoveListener(new GoogleMap.OnCameraMoveListener() {
+        this.googleMap.setOnCameraMoveListener(new GoogleMap.OnCameraMoveListener() {
 
             @Override
             public void onCameraMove() {
@@ -1017,18 +1287,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         moveMapByUser = false;
 
 //      18.08.26 주석처리
-        if (currentMarker != null) currentMarker.remove();
+        //if (currentMarker != null) currentMarker.remove();
         LatLng currentLatLng = new LatLng(location.getLatitude(), location.getLongitude());
-        MarkerOptions markerOptions = new MarkerOptions();
-        markerOptions.position(currentLatLng);
-        markerOptions.title(markerTitle);
-        markerOptions.snippet(markerSnippet);
-        markerOptions.draggable(true);
-
-        //구글맵의 디폴트 현재 위치는 파란색 동그라미로 표시
-        //마커를 원하는 이미지로 변경하여 현재 위치 표시하도록 수정 fix - 2017. 11.27
-        markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_launcher)); //안드로이드 아이콘 18.08.26
-        currentMarker = googleMap.addMarker(markerOptions); //18.08.26
 
         if ( moveMapByAPI ) {
             Log.d( TAG, "setCurrentLocation :  mGoogleMap moveCamera "
@@ -1044,7 +1304,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         moveMapByUser = false;
         //디폴트 위치, Seoul
-        LatLng DEFAULT_LOCATION = new LatLng(37.56, 126.97);
+        LatLng DEFAULT_LOCATION = new LatLng(37.496375, 126.956879);
         String markerTitle = "위치정보 가져올 수 없음";
         String markerSnippet = "위치 퍼미션과 GPS 활성 요부 확인하세요";
 
