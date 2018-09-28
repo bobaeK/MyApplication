@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_weight="1"
-    android:visibility="visible">
+    android:visibility="visible"
+    >
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -87,17 +88,19 @@
                 android:layout_weight="1">
                 <ImageView
                     android:id="@+id/lock"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:visibility="gone"
+                    android:layout_gravity="center|top"
                     app:srcCompat="@drawable/locked"
                     android:onClick="do_unlock"/>
 
                 <ImageView
                     android:id="@+id/unlock"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:visibility="gone"
+                    android:layout_gravity="center|top"
                     app:srcCompat="@drawable/unlocked"
                     android:onClick="do_lock"/>
 

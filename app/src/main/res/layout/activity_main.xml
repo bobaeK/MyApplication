@@ -10,7 +10,7 @@
     <ListView android:id="@+id/drawer"
         android:layout_height="match_parent"
         android:layout_width="200dp"
-        android:background="@color/baseBg"
+        android:background="@color/colorListbody"
         android:dividerHeight="1dp"
         android:divider="#ffffff"
         android:orientation="vertical"
@@ -44,11 +44,11 @@
             android:layout_height="match_parent"
             layout="@layout/layout_notice"/>
 
-        <!--windowEmail-->
+        <!--windowQnA-->
         <include
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            layout="@layout/layout_email"/>
+            layout="@layout/layout_qna"/>
 
         <!--windowEmail-->
         <include

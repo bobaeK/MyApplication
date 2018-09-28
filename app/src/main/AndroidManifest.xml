@@ -15,9 +15,9 @@
     <!-- 출처: http://bcho.tistory.com/search/날씨 [조대협의 블로그] -->
     <application
         android:allowBackup="false"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/obelock_launcher2_72"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@drawable/obelock_launcher2_72"
         android:supportsRtl="true">
         <!--tools:replace="android:allowBackup">-->
         <meta-data
@@ -40,6 +40,9 @@
             android:theme="@style/AppTheme" />
         <activity
             android:name=".view.LockManageActivity"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name=".view.DeviceListActivity"
             android:theme="@style/AppTheme" />
     </application>
 
