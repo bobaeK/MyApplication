@@ -4,7 +4,10 @@ import android.os.AsyncTask;
 
 import com.example.admin.myapplication.controller.OpenWeatherAPIClient;
 import com.example.admin.myapplication.vo.Weather;
+public class OpenWeatherAPITask{
 
+}
+/*
 public class OpenWeatherAPITask extends AsyncTask<Integer, Void, Weather> {
 
     @Override
@@ -19,5 +22,5 @@ public class OpenWeatherAPITask extends AsyncTask<Integer, Void, Weather> {
         // 작업 후 리
         return w;
     }
-}
+}*/
 /*출처: http://bcho.tistory.com/search/날씨 [조대협의 블로그]*/

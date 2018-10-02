@@ -3,8 +3,10 @@ package com.example.admin.myapplication.vo;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.io.Serializable;
 
-public class Lock implements Parcelable{
+
+public class Lock implements Parcelable, Serializable{
 
     private int battery;
     private int state;//열림 : 1, 잠김 : 2, 진동 : 3, 끊어짐 : 4

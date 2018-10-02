@@ -21,10 +21,15 @@ import com.example.admin.myapplication.vo.Lock;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.EOFException;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
@@ -46,53 +51,51 @@ public class LoadingActivity extends AppCompatActivity
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                Intent intent = null;
+                ObjectInputStream ois = null;
                 lockManager = new ArrayList<Lock>();
                 try
                 {
                     Log.i(TAG, "get lock-info" );
-                    BufferedReader br = new BufferedReader(new FileReader(getFilesDir() + "lock_info.txt"));
+                    ois = new ObjectInputStream(new FileInputStream(getFilesDir() + "lock_info.ser"));
                     Lock lock;
                     StringTokenizer token;
                     String temp;
 
                     Log.d(TAG, "read lock-info" );
-                    while((temp = br.readLine()) != null)
+                    while(true)
                     {
-                        lock = new Lock();
+                        lock = (Lock)ois.readObject();
                         /*데이터 파싱*/
-                        //lock 정보 가져오기
-                        String name;
-                        while("%%end%%".equals((name = br.readLine()))){
-                            lock.setName(name);
-                            lock.setOrder(Integer.parseInt(br.readLine()));
-                            lock.setMacAddr(br.readLine());
-                            lock.setBattery(Integer.parseInt(br.readLine()));
-                            lock.setState(Integer.parseInt(br.readLine()));
-                        }
                         lockManager.add(lock);
                     }
-                    Log.i(TAG, "close lock-info" );
-                    br.close();
+                    //Log.i(TAG, "close lock-info" );
+                    //ois.close();
 
                 }
                 catch (FileNotFoundException e)
                 {
-                    Log.d(TAG, "lock-info.txt not found");
+                    Log.d(TAG, "lock-info.ser not found");
                     try
                     {
-                        BufferedWriter bw = new BufferedWriter(new FileWriter(getFilesDir() + "lock_info.txt", false));
-                        bw.close();
+                        ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(getFilesDir() + "lock_info.ser", false));
+                        oos.close();
                     }
                     catch (IOException ioe)
                     {
                         ioe.printStackTrace();
                     }
                     e.printStackTrace();
-                }
-                catch (IOException e)
-                {
-                    Log.i(TAG, "something wrong" );
+                } catch(EOFException e){
+                    if(ois != null) {
+                        try {
+                            ois.close();
+                        } catch (IOException ioe) {
+                            ioe.printStackTrace();
+                        }
+                    }
+                } catch(IOException e){
+                    e.printStackTrace();
+                } catch (ClassNotFoundException e) {
                     e.printStackTrace();
                 }
                 // 스마트폰에서 블루투스 기능 지원하는지 확인
@@ -101,6 +104,7 @@ public class LoadingActivity extends AppCompatActivity
                     Toast.makeText(getApplicationContext(), "블루투스 연결을 지원하지 않는 디바이스입니다!", Toast.LENGTH_LONG).show();
                     finish();
                 }
+                Intent intent = null;
                 //등록된 디바이스 test할때는 != 0으로
                 if(lockManager.size() != 0)
                 {
@@ -136,16 +140,4 @@ public class LoadingActivity extends AppCompatActivity
         }, 2000);
 
     }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-    }
-
-
 }

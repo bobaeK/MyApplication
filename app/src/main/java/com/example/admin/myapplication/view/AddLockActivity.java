@@ -36,7 +36,7 @@ public class AddLockActivity extends AppCompatActivity {
     private static final String TAG = "addLockActivity";
     private static final boolean D=true;
     private ArrayList<Lock> lockManager;
-    private LinearLayout linearLayout;
+    protected LinearLayout linearLayout;
     private BluetoothService btService;
 
 

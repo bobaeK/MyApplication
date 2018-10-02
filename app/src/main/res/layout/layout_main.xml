@@ -4,7 +4,6 @@
     android:id="@+id/window1"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_weight="1"
     android:visibility="visible"
     >
 
@@ -12,12 +11,11 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
-
-        <LinearLayout
+    <!--<LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
-            <!--숭실대학교 (37.496375,126.9546903)-->
+            &lt;!&ndash;숭실대학교 (37.496375,126.9546903)&ndash;&gt;
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
@@ -33,14 +31,11 @@
                     android:width="100dp"
                     android:focusable="false"
                     android:text="37" />
-
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="longitude"
                     android:id="@+id/tvLongitude" />
-
-
                 <EditText
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -64,75 +59,64 @@
                     android:text="getWeather"
                     android:id="@+id/getWeatherBtn"
                     android:layout_weight="1"/>
-
             </LinearLayout>
-        </LinearLayout>
-
-        <LinearLayout
+        </LinearLayout> -->
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
+            android:gravity = "center"
             android:paddingTop="20dp"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
-            android:layout_weight="1"
-            android:orientation="horizontal">
-            <TextView
-                android:text="자물쇠 변경"
+            android:layout_weight="1">
+            <ImageView
+                android:id="@+id/lock"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:textColor="#00ffffff"/>
-            <FrameLayout
-                android:layout_width="match_parent"
+                android:visibility="gone"
+                android:layout_gravity="center|top"
+                app:srcCompat="@drawable/locked"
+                android:onClick="do_unlock"/>
+
+            <ImageView
+                android:id="@+id/unlock"
+                android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:gravity = "center"
-                android:layout_weight="1">
-                <ImageView
-                    android:id="@+id/lock"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:visibility="gone"
-                    android:layout_gravity="center|top"
-                    app:srcCompat="@drawable/locked"
-                    android:onClick="do_unlock"/>
+                android:visibility="gone"
+                android:layout_gravity="center|top"
+                app:srcCompat="@drawable/unlocked"
+                android:onClick="do_lock"/>
 
-                <ImageView
-                    android:id="@+id/unlock"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:visibility="gone"
-                    android:layout_gravity="center|top"
-                    app:srcCompat="@drawable/unlocked"
-                    android:onClick="do_lock"/>
-
-                <Button
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="새로고침"
-                    android:id="@+id/btn_refresh"
-                    android:onClick="do_refresh"
-                    android:visibility="gone"
-                    android:layout_gravity="center"/>
-                <ProgressBar
-                    android:id="@+id/connecting"
-                    style="?android:attr/progressBarStyle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"/>
-            </FrameLayout>
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="새로고침"
+                android:id="@+id/btn_refresh"
+                android:onClick="do_refresh"
+                android:visibility="gone"
+                android:layout_gravity="center"/>
+            <ProgressBar
+                android:id="@+id/connecting"
+                style="?android:attr/progressBarStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"/>
             <TextView
                 android:text="자물쇠 변경"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="#00aaff"
+                android:layout_gravity="top|right"
                 android:onClick="go_management"/>
-        </LinearLayout>
+        </FrameLayout>
         <TextView
             android:id="@+id/battery"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textSize="35pt"
             android:layout_marginBottom="20dp"
             android:gravity="center"
-            android:text=""/>
+            android:text="측정중..."/>
     </LinearLayout>
 
 </FrameLayout>

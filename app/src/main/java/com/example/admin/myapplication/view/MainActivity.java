@@ -4,6 +4,10 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
@@ -11,6 +15,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
@@ -23,10 +29,12 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.Parcelable;
 import android.os.StrictMode;
+import android.os.Vibrator;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -55,7 +63,7 @@ import android.widget.Toast;
 
 import com.example.admin.myapplication.BluetoothConstants;
 import com.example.admin.myapplication.controller.BluetoothService;
-import com.example.admin.myapplication.controller.OpenWeatherAPITask;
+//import com.example.admin.myapplication.controller.OpenWeatherAPITask;
 import com.example.admin.myapplication.R;
 import com.example.admin.myapplication.vo.Distance;
 import com.example.admin.myapplication.vo.GMail;
@@ -139,6 +147,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     }else if(msg.arg1 == BluetoothConstants.STATE_CONNECTED) {
                         connecting.setVisibility(View.GONE);
                         battery.setText("배터리 정보 불러오는중...");
+                        //배터리 사이즈 변경하기
+                        battery.setVisibility(View.VISIBLE);
+
                     }else if(msg.arg1 == BluetoothConstants.STATE_LISTEN){
                         unlock.setVisibility(View.GONE);
                         lock.setVisibility(View.GONE);
@@ -170,32 +181,62 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                     if(len > 0){
                         String print = stringBuilder.substring(0, len);
+
+                        Vibrator vibrator = (Vibrator)getSystemService(VIBRATOR_SERVICE);
+                        NotificationCompat.Builder mBuilder;
+                        NotificationManager mNotificationManager;
+
                         stringBuilder.delete(0, stringBuilder.length());
                         char c = print.charAt(0);
+
                         switch(c){
                             case '1':
                                 //열림
                                 refresh.setVisibility(View.GONE);
                                 lock.setVisibility(View.GONE);
                                 unlock.setVisibility(View.VISIBLE);
+
                                 break;
                             case '2':
                                 //닫힘
                                 refresh.setVisibility(View.GONE);
                                 unlock.setVisibility(View.GONE);
                                 lock.setVisibility(View.VISIBLE);
+
                                 break;
                             case '3':
+                                vibrator.vibrate(1000);//일초동안 울리기
                                 //위험감지(진동)
+                                mBuilder = createNotification();
+                                mBuilder.setContentIntent(createPendingIntent());
+
+                                mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                                mNotificationManager.notify(1, mBuilder.build());
+
                                 break;
                             case '4':
                                 //위험감지(끊어짐)
+                                vibrator.vibrate(1000);//일초동안 울리기
+
+                                mBuilder = createNotification();
+                                mBuilder.setContentIntent(createPendingIntent());
+
+                                mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                                mNotificationManager.notify(1, mBuilder.build());
+
                                 break;
                             default:
                                 //베터리 잔량 표시
                                 int index = 0;
                                 while(print.charAt(++index) == '$');
-                                battery.setText("배터리 : " + print.substring(index));
+                                int b = Integer.parseInt(print.substring(index));
+                                if(b > 5000)
+                                    b = 5000;
+                                else if(b < 3000)
+                                    b = 3000;
+                                b -= 3000;
+                                b /= 20;
+                                battery.setText(b + "%");
                                 break;
 
                         }
@@ -688,15 +729,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                     tv_rideDis.setText(String.format("%.2f",sum_dist) + " Km");
 
                                     //18.09.07
-
                                     spdview.speedTo((float)mySpeed,2100); //18.09.07 스피드 띄운후 2.1초동안 지속
-
-
                                 }
                             }
                         }
                     };
-
                     time_handler.sendEmptyMessage(0);
                 }
 
@@ -740,51 +777,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
             return;
         }
         //GPS PROVIDER 일때 최소 2.1초마다 혹은 0미터 변동 되었을때 마다 리스너를 호출 한다.
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2100, 0, locationListener);
 
         callPermission();  // 권한 요청을 해야 함
-
-        //여기서 디비에서 불러온 상태값에 따라 unlock을 visible할지 lock을 visible할지 결정(default는 lock이 visible)
-        final TextView tem = (TextView)findViewById(R.id.tem);
-        Button getWeatherBtn = (Button)findViewById(R.id.getWeatherBtn);
-
-        getWeatherBtn.setOnClickListener(new Button.OnClickListener()
-        {
-            @Override
-            public void onClick(View view) {
-                int longitude;
-                int latitude;
-                EditText tvLon = (EditText) findViewById(R.id.lon);
-                EditText tvLat = (EditText) findViewById(R.id.lat);
-
-                longitude = Integer.parseInt(tvLon.getText().toString());
-                latitude = Integer.parseInt(tvLat.getText().toString());
-
-                // 날씨를 읽어오는 API 호출
-                OpenWeatherAPITask t= new OpenWeatherAPITask();
-                try
-                {
-                    Weather w = t.execute(latitude, longitude).get();
-
-                    String temperature = String.valueOf(w.getTemp() - 273.15);
-                    tem.setText(temperature);
-
-                }
-                catch (InterruptedException | ExecutionException e)
-                {
-                    e.printStackTrace();
-                }
-            }
-        });
+        //자물쇠 디바이스 정보 전달받기
         lockManager = (ArrayList<Parcelable>)intent.getParcelableArrayListExtra("lock_manager");
         
     }
@@ -1287,7 +1286,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         moveMapByUser = false;
 
 //      18.08.26 주석처리
-        //if (currentMarker != null) currentMarker.remove();
         LatLng currentLatLng = new LatLng(location.getLatitude(), location.getLongitude());
 
         if ( moveMapByAPI ) {
@@ -1364,29 +1362,18 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         }
 
-        if (permsRequestCode
-                == PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION && grantResults.length > 0) {
-
+        if (permsRequestCode == PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION && grantResults.length > 0) {
             boolean permissionAccepted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
-
             if (permissionAccepted) {
-
-
                 if ( googleApiClient.isConnected() == false) {
-
                     Log.d(TAG, "onRequestPermissionsResult : mGoogleApiClient connect");
                     googleApiClient.connect();
                 }
-
-
-
             } else {
-
                 checkPermissions();
             }
         }
     }
-
     @TargetApi(Build.VERSION_CODES.M)
     private void showDialogForPermission(String msg) {
 
@@ -1615,4 +1602,35 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             return true;
         return super.onOptionsItemSelected(item);
     }
+    private PendingIntent createPendingIntent(){
+        Intent resultIntent = new Intent(this, MainActivity.class);
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+        stackBuilder.addParentStack(MainActivity.class);
+        stackBuilder.addNextIntent(resultIntent);
+
+        return stackBuilder.getPendingIntent(
+                0,
+                PendingIntent.FLAG_UPDATE_CURRENT
+        );
+    }
+
+    private NotificationCompat.Builder createNotification(){
+        Bitmap icon = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setLargeIcon(icon)
+                .setContentTitle("StatusBar Title")
+                .setContentText("StatusBar subTitle")
+                .setSmallIcon(R.mipmap.ic_launcher/*스와이프 전 아이콘*/)
+                .setAutoCancel(true)
+                .setWhen(System.currentTimeMillis())
+                .setDefaults(Notification.DEFAULT_ALL);
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
+            builder.setCategory(Notification.CATEGORY_MESSAGE)
+                    .setPriority(Notification.PRIORITY_HIGH)
+                    .setVisibility(Notification.VISIBILITY_PUBLIC);
+        }
+        return builder;
+    }
+
 }

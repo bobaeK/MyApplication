@@ -10,7 +10,7 @@
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-
+    <uses-permission android:name="android.permission.VIBRATE"/>
     <!-- 출처: http://sehyo88.tistory.com/entry/Android-Bluetooth-기초-외부-Device와-연결 [나의 성장 일기] -->
     <!-- 출처: http://bcho.tistory.com/search/날씨 [조대협의 블로그] -->
     <application

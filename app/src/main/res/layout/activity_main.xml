@@ -19,49 +19,6 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-        <!--Window1-->
-
-        <include
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            layout="@layout/layout_main"/>
-
-        <!--Window2-->
-        <include
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            layout="@layout/layout_gps_drive"/>
-
-        <!--Window3-->
-        <include
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            layout="@layout/layout_setting"/>
-
-        <!--windowNotice-->
-        <include
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            layout="@layout/layout_notice"/>
-
-        <!--windowQnA-->
-        <include
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            layout="@layout/layout_qna"/>
-
-        <!--windowEmail-->
-        <include
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            layout="@layout/layout_email"/>
-
-        <!--windowStory-->
-        <include
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            layout="@layout/layout_story"/>
-
         <!--하단 네비게이션-->
         <android.support.design.widget.BottomNavigationView
             android:id="@+id/bottom_navigation"
@@ -73,5 +30,55 @@
             app:itemTextColor="@android:color/white"
             app:menu="@menu/bottom_navigation_main">
         </android.support.design.widget.BottomNavigationView>
+        <!--Window1-->
+        <include
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@+id/bottom_navigation"
+            layout="@layout/layout_main"/>
+
+        <!--Window2-->
+        <include
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@+id/bottom_navigation"
+            layout="@layout/layout_gps_drive"/>
+
+        <!--Window3-->
+        <include
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@+id/bottom_navigation"
+            layout="@layout/layout_setting"/>
+
+        <!--windowNotice-->
+        <include
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@+id/bottom_navigation"
+            layout="@layout/layout_notice"/>
+
+        <!--windowQnA-->
+        <include
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@+id/bottom_navigation"
+            layout="@layout/layout_qna"/>
+
+        <!--windowEmail-->
+        <include
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@+id/bottom_navigation"
+            layout="@layout/layout_email"/>
+
+        <!--windowStory-->
+        <include
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@+id/bottom_navigation"
+            layout="@layout/layout_story"/>
+
+
     </RelativeLayout>
 </android.support.v4.widget.DrawerLayout>

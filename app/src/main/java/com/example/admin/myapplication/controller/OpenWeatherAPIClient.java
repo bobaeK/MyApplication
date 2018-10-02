@@ -34,7 +34,7 @@ import java.net.URL;
  * 참고 자료 : http://developer.android.com/training/basics/network-ops/connecting.html
  * */
 public class OpenWeatherAPIClient {
-    final static String openWeatherURL = "http://api.openweathermap.org/data/2.5/weather?";
+    /*final static String openWeatherURL = "http://api.openweathermap.org/data/2.5/weather?";
     final static String appid="&APPID=215f83b888f2f2b402a3305471526113";
     public Weather getWeather(int lat, int lon){
         Weather w = new Weather();
@@ -96,6 +96,6 @@ public class OpenWeatherAPIClient {
             }
         }
         return sb.toString();
-    }
+    }*/
 }
 /*출처: http://bcho.tistory.com/search/날씨 [조대협의 블로그]*/
