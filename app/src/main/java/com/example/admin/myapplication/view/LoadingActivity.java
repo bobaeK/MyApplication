@@ -127,8 +127,6 @@ public class LoadingActivity extends AppCompatActivity
                     lock.setOrder(1);
                     lockManager.add(lock);
 
-
-
                     intent = new Intent(getApplicationContext(), MainActivity.class);
                     intent.putParcelableArrayListExtra("lock_manager", lockManager);
 

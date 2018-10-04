@@ -23,26 +23,14 @@
             android:background="@color/underLine" />
 
         <TextView
-            android:layout_width="fill_parent"
-            android:layout_height="28dp"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1.2"
             android:background="@color/setBold"
             android:gravity="left|center"
             android:text="@string/txt1"
+            style="?android:attr/borderlessButtonStyle"
             android:textColor="@color/txtMain" />
-
-        <View
-            android:layout_width="wrap_content"
-            android:layout_height="0.3dp"
-            android:background="@color/underLine" />
-
-        <Button
-            android:id="@+id/txt1btn1"
-            android:layout_width="match_parent"
-            android:layout_height="25dp"
-            android:background="#ffffff"
-            android:gravity="left|center"
-            android:text="@string/txt1ch1"
-            android:textColor="@color/txtSub" />
 
         <View
             android:layout_width="wrap_content"
@@ -53,7 +41,7 @@
             android:id="@+id/bluetooth_switch"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="0.13"
+            android:layout_weight="1"
             android:padding="10dp"
             android:background="@drawable/border"
             android:text="Bluetooth"
@@ -62,7 +50,7 @@
             android:id="@+id/gps_switch"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="0.13"
+            android:layout_weight="1"
             android:background="@drawable/border"
             android:padding="10dp"
             android:text="GPS"
@@ -70,11 +58,13 @@
         <!--개인설정-->
 
         <TextView
-            android:layout_width="fill_parent"
-            android:layout_height="28dp"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1.2"
             android:background="@color/setBold"
             android:gravity="left|center"
             android:text="@string/txt2"
+            style="?android:attr/borderlessButtonStyle"
             android:textColor="@color/txtMain" />
 
         <View
@@ -85,7 +75,8 @@
         <Button
             android:id="@+id/txt2btn1"
             android:layout_width="match_parent"
-            android:layout_height="25dp"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             android:background="#ffffff"
             android:gravity="left|center"
             android:text="@string/txt2ch1"
@@ -99,7 +90,8 @@
         <Button
             android:id="@+id/txt2btn2"
             android:layout_width="match_parent"
-            android:layout_height="25dp"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             android:background="#ffffff"
             android:gravity="left|center"
             android:text="@string/txt2ch2"
@@ -112,11 +104,13 @@
 
 
         <TextView
-            android:layout_width="fill_parent"
-            android:layout_height="28dp"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1.2"
             android:background="@color/setBold"
             android:gravity="left|center"
             android:text="@string/txt3"
+            style="?android:attr/borderlessButtonStyle"
             android:textColor="@color/txtMain" />
 
         <View
@@ -127,7 +121,8 @@
         <Button
             android:id="@+id/txt3btn1"
             android:layout_width="match_parent"
-            android:layout_height="25dp"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             android:background="#ffffff"
             android:gravity="left|center"
             android:text="@string/txt3ch1"
@@ -142,7 +137,8 @@
         <Button
             android:id="@+id/txt3btn2"
             android:layout_width="match_parent"
-            android:layout_height="25dp"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             android:background="#ffffff"
             android:gravity="left|center"
             android:text="@string/txt3ch2"
@@ -157,7 +153,8 @@
         <Button
             android:id="@+id/txt3btn3"
             android:layout_width="match_parent"
-            android:layout_height="25dp"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             android:background="#ffffff"
             android:gravity="left|center"
             android:text="@string/txt3ch3"
@@ -172,12 +169,12 @@
         <Button
             android:id="@+id/txt3btn4"
             android:layout_width="match_parent"
-            android:layout_height="25dp"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             android:background="#ffffff"
             android:gravity="left|center"
             android:text="@string/txt3ch4"
             android:textColor="@color/txtSub"
-            style="?android:attr/borderlessButtonStyle"
             android:onClick="onMapIconClick"/>
         <View
             android:layout_width="wrap_content"

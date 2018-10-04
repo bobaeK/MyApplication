@@ -113,10 +113,10 @@
             android:id="@+id/battery"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="35pt"
+            android:textSize="20sp"
             android:layout_marginBottom="20dp"
             android:gravity="center"
-            android:text="측정중..."/>
+            android:text="연결중..."/>
     </LinearLayout>
 
 </FrameLayout>

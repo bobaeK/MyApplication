@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.TaskStackBuilder;
@@ -23,6 +24,7 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
@@ -107,6 +109,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         GoogleApiClient.OnConnectionFailedListener,
         com.google.android.gms.location.LocationListener, PlacesListener
 {
+    private static boolean lock_cut = false;
+    private static boolean lock_wave = false;
     private static final String TAG = "MainActivity";
     private Lock curLock;
     private static final String TESTMACADDR = "98:D3:63:00:01:44";
@@ -139,23 +143,17 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         connecting.setVisibility(View.GONE);
                         refresh.setVisibility(View.VISIBLE);
                         battery.setText("");
-                        Toast.makeText(MainActivity.this, "연결실패!! 다시시도해주세용ㅠㅅㅠ", Toast.LENGTH_SHORT).show();
-
-
-
-                        Toast.makeText(MainActivity.this, "자물쇠 열림", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MainActivity.this, "연결실패!! 다시시도해주세요", Toast.LENGTH_SHORT).show();
                     }else if(msg.arg1 == BluetoothConstants.STATE_CONNECTED) {
                         connecting.setVisibility(View.GONE);
                         battery.setText("배터리 정보 불러오는중...");
-                        //배터리 사이즈 변경하기
-                        battery.setVisibility(View.VISIBLE);
 
                     }else if(msg.arg1 == BluetoothConstants.STATE_LISTEN){
                         unlock.setVisibility(View.GONE);
                         lock.setVisibility(View.GONE);
                         connecting.setVisibility(View.GONE);
                         refresh.setVisibility(View.VISIBLE);
-                        Toast.makeText(MainActivity.this, "연결이 끊어졌어요!! 다시연결해주세용ㅠㅅㅠ", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MainActivity.this, "연결이 끊어졌어요!! 다시연결해주세요", Toast.LENGTH_SHORT).show();
                     }
                     break;
                 case BluetoothConstants.MESSAGE_WRITE:
@@ -163,7 +161,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     if(msg.arg1 == 1){
 
                     }else if(msg.arg1 == 0){
-                        Toast.makeText(getApplicationContext(), "전송실패! 다시시도해주세용ㅠㅅㅠ",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), "전송실패! 다시시도해주세요",Toast.LENGTH_SHORT).show();
                     }
                     break;
 
@@ -205,31 +203,36 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                                 break;
                             case '3':
-                                vibrator.vibrate(1000);//일초동안 울리기
+                                vibrator.vibrate(500);//0.5초동안 울리기
                                 //위험감지(진동)
-                                mBuilder = createNotification();
-                                mBuilder.setContentIntent(createPendingIntent());
+                                if(!lock_wave) {
+                                    lock_wave = true;
+                                    mBuilder = createNotification("위험", "누군가 당신의 자물쇠를 억지로 열기위해 시도하고 있습니다.");
+                                    mBuilder.setContentIntent(createPendingIntent());
 
-                                mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-                                mNotificationManager.notify(1, mBuilder.build());
-
+                                    mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                                    mNotificationManager.notify(1, mBuilder.build());
+                                }
                                 break;
                             case '4':
                                 //위험감지(끊어짐)
-                                vibrator.vibrate(1000);//일초동안 울리기
+                                vibrator.vibrate(2000);//일초동안 울리기
+                                if(!lock_cut) {
+                                    lock_cut = true;
+                                    mBuilder = createNotification("긴급", "누군가 당신의 자물쇠를 끊었습니다.");
+                                    mBuilder.setContentIntent(createPendingIntent());
 
-                                mBuilder = createNotification();
-                                mBuilder.setContentIntent(createPendingIntent());
-
-                                mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-                                mNotificationManager.notify(1, mBuilder.build());
-
+                                    mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                                    mNotificationManager.notify(1, mBuilder.build());
+                                }
                                 break;
                             default:
                                 //베터리 잔량 표시
+                                battery.setTextSize(35);
                                 int index = 0;
                                 while(print.charAt(++index) == '$');
                                 int b = Integer.parseInt(print.substring(index));
+                                b = 4500;
                                 if(b > 5000)
                                     b = 5000;
                                 else if(b < 3000)
@@ -240,8 +243,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                 break;
 
                         }
-                        Log.d(TAG, "read : " + print);
-                        Toast.makeText(getApplicationContext(), "print : " + print, Toast.LENGTH_LONG).show();
+                        //Log.d(TAG, "read : " + print);
+                        //Toast.makeText(getApplicationContext(), "print : " + print, Toast.LENGTH_SHORT).show();
                     }
                     break;
 
@@ -463,14 +466,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
         //18.08.29 상세설정
-//        windowDetailSetting = (FrameLayout)findViewById(R.id.windowDetailSetting);
-//        backDetailSetting = (Button)findViewById(R.id.backDetailSetting);
-//        txt1btn1 = (Button)findViewById(R.id.txt1btn1);
         bluetoothSwitch = (Switch)findViewById(R.id.bluetooth_switch);
         gpsSwitch = (Switch)findViewById(R.id.gps_switch);
-
-//        backDetailSetting.setOnClickListener(this);
-//        txt1btn1.setOnClickListener(this);
 
         //현재 블루투스랑 gps가 On 인지 확인해서 스위치 온오프 상태 설정하기
         bluetoothSwitch.setChecked(false);
@@ -736,11 +733,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     };
                     time_handler.sendEmptyMessage(0);
                 }
-
             }
-
-
-
         });//주행시작
 
         btn_timer_finish.setOnClickListener(new View.OnClickListener() {
@@ -1306,16 +1299,17 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         String markerTitle = "위치정보 가져올 수 없음";
         String markerSnippet = "위치 퍼미션과 GPS 활성 요부 확인하세요";
 
-        if (currentMarker != null) currentMarker.remove();
+        if (currentMarker != null) {
+            currentMarker.remove();
 
-        MarkerOptions markerOptions = new MarkerOptions();
-        markerOptions.position(DEFAULT_LOCATION);
-        markerOptions.title(markerTitle);
-        markerOptions.snippet(markerSnippet);
-        markerOptions.draggable(true);
-        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
-        currentMarker = googleMap.addMarker(markerOptions);
-
+            MarkerOptions markerOptions = new MarkerOptions();
+            markerOptions.position(DEFAULT_LOCATION);
+            markerOptions.title(markerTitle);
+            markerOptions.snippet(markerSnippet);
+            markerOptions.draggable(true);
+            markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+            currentMarker = googleMap.addMarker(markerOptions);
+        }
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(DEFAULT_LOCATION, 15);
         googleMap.moveCamera(cameraUpdate);
 
@@ -1614,17 +1608,46 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         );
     }
 
-    private NotificationCompat.Builder createNotification(){
+    private NotificationCompat.Builder createNotification(String title, String content){
         Bitmap icon = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
-                .setSmallIcon(R.mipmap.ic_launcher)
-                .setLargeIcon(icon)
-                .setContentTitle("StatusBar Title")
-                .setContentText("StatusBar subTitle")
-                .setSmallIcon(R.mipmap.ic_launcher/*스와이프 전 아이콘*/)
-                .setAutoCancel(true)
-                .setWhen(System.currentTimeMillis())
-                .setDefaults(Notification.DEFAULT_ALL);
+
+        String channelId = "channel";
+        String channelName = "Channel Name";
+
+        NotificationManager notifManager
+
+                = (NotificationManager) getSystemService  (Context.NOTIFICATION_SERVICE);
+
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            int importance = NotificationManager.IMPORTANCE_HIGH;
+            NotificationChannel mChannel = new NotificationChannel(channelId, channelName, importance);
+            notifManager.createNotificationChannel(mChannel);
+        }
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), channelId);
+        Intent notificationIntent = new Intent(getApplicationContext(), MainActivity.class);
+
+        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        int requestID = (int) System.currentTimeMillis();
+
+        PendingIntent pendingIntent
+                = PendingIntent.getActivity(getApplicationContext(), requestID, notificationIntent
+
+                , PendingIntent.FLAG_UPDATE_CURRENT);
+
+        builder.setContentTitle(title) // required
+                .setContentText(content)  // required
+                .setDefaults(Notification.DEFAULT_ALL) // 알림, 사운드 진동 설정
+                .setAutoCancel(true) // 알림 터치시 반응 후 삭제
+                .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
+                .setSmallIcon(android.R.drawable.btn_star)
+                .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.obelock_launcher72))
+                .setBadgeIconType(R.drawable.obelock_launcher72)
+                .setContentIntent(pendingIntent);
+
+        notifManager.notify(0, builder.build());
+
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
             builder.setCategory(Notification.CATEGORY_MESSAGE)
                     .setPriority(Notification.PRIORITY_HIGH)
