@@ -212,6 +212,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                                     mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
                                     mNotificationManager.notify(1, mBuilder.build());
+
+                                    lock_wave = false;
                                 }
                                 break;
                             case '4':
@@ -224,6 +226,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                                     mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
                                     mNotificationManager.notify(1, mBuilder.build());
+
+                                    lock_cut = false;
                                 }
                                 break;
                             default:

@@ -4,30 +4,36 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
-    <Button
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="left"
-        android:layout_marginLeft="10dp"
-        android:text="삭제하기"
-        android:id="@+id/delete_btn"
-        android:onClick="do_delete"/>
-    <Button
-        android:id="@+id/select_btn"
-        android:onClick="do_select"
+        android:gravity="right"
+        android:paddingTop="20dp">
 
-        android:text="선택하기"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="right"
-        android:layout_marginRight="10dp"/>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left"
+            android:layout_marginLeft="15dp"
+            android:text="삭제하기"
+            android:id="@+id/delete_btn"
+            android:onClick="do_delete"/>
+        <Button
+            android:id="@+id/select_btn"
+            android:onClick="do_select"
 
+            android:text="선택하기"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:layout_marginRight="10dp"/>
+    </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="#ffffdd"
-            android:layout_margin="20dp"
+            android:background="@drawable/rounded"
+            android:layout_margin="15dp"
             android:layout_weight="1">
 
             <view class="android.support.v4.view.ViewPager"
@@ -41,13 +47,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="lock1"/>
+            android:text="OBELock"/>
         <TextView
             android:id="@+id/lock_serial_num"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="xxxx-xxxx-xxxx"/>
+            android:text="1234-abcd-0000"/>
 
 
     <!--하단 네비게이션-->

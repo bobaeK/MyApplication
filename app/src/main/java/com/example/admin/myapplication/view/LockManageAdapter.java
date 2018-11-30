@@ -54,8 +54,9 @@ public class LockManageAdapter extends PagerAdapter{
         ImageView imageView = (ImageView)v.findViewById(R.id.imageView);
         TextView textView = (TextView)v.findViewById(R.id.tv_num);
         imageView.setImageResource(images[position]);
-        textView.setText(String.valueOf(position + 1));
 
+        //textView.setText(String.valueOf(position + 1));
+        textView.setVisibility(View.GONE);
         container.addView(v);
         return v;
     }

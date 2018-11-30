@@ -42,7 +42,7 @@ public class AddLockActivity extends AppCompatActivity {
 
     private EditText lockName;
     private EditText serialNum;
-    private TextView test;
+    //private TextView test;
 
 
     private String address = null;
@@ -67,13 +67,13 @@ public class AddLockActivity extends AppCompatActivity {
                             serialNum.setText(address);
                             serialNum.setEnabled(false);
 
-                            test.setText("등록완료!!");
+                            //test.setText("등록완료!!");
                         }else{
                             lockName.setText("");
                             serialNum.setText("");
                             serialNum.setEnabled(true);
 
-                            test.setText("디바이스를 등록해주세요!");
+                            //test.setText("디바이스를 등록해주세요!");
                             Toast.makeText(getApplicationContext(), "잘못된 기기 등록입니다!!", Toast.LENGTH_SHORT).show();
                         }
                         break;
@@ -132,7 +132,7 @@ public class AddLockActivity extends AppCompatActivity {
 
         lockName = (EditText)findViewById(R.id.lock_name);
         serialNum = (EditText)findViewById(R.id.serial_num);
-        test = (TextView)findViewById(R.id.test);
+        //test = (TextView)findViewById(R.id.test);
 
 
         if(btService == null)
